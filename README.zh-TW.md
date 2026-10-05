@@ -4,9 +4,15 @@
 
 住在桌面上的寵物,其實是一個 [ACP](https://agentclientprotocol.com) coding agent(Claude Code、Codex、Gemini…)的擬人化儀表板。牠不聊天、也不靠讀 log 猜——牠直接吃 agent 真實的 `session/update` 事件流,事件發生的當下就演給你看。預設的寵物是《蔚藍檔案》的光和望([見下方](#光與望));另外還有程式畫的小雞,任何 Codex 角色包也都能用。
 
-| 光 Hikari | 望 Nozomi | 小雞 |
-|:---:|:---:|:---:|
-| ![Hikari](docs/pets/hikari.gif) | ![Nozomi](docs/pets/nozomi.gif) | ![poses](docs/poses.png) |
+<p align="center">
+  <img src="docs/pets/hikari.gif" width="192" height="208" alt="光 Hikari">
+  <img src="docs/pets/nozomi.gif" width="192" height="208" alt="望 Nozomi">
+</p>
+<p align="center"><img src="docs/showcase.png" width="100%" alt="光和望的每個動作,插畫版與像素版"></p>
+
+內建的小雞:
+
+![poses](docs/poses.png)
 
 | agent 在做什麼 | 小雞在做什麼 |
 |---|---|

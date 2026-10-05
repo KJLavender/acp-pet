@@ -4,9 +4,15 @@
 
 A desktop pet that lives on your screen and is secretly a dashboard for an [ACP](https://agentclientprotocol.com) coding agent (Claude Code, Codex, Gemini…). It doesn't chat and it doesn't guess from logs: it consumes the agent's real `session/update` event stream and acts out each event as it happens. Out of the box the pets are Hikari and Nozomi from *Blue Archive* ([below](#meet-hikari--nozomi)); there's also a code-drawn chick, and any Codex pet pack works.
 
-| Hikari | Nozomi | Chick |
-|:---:|:---:|:---:|
-| ![Hikari](docs/pets/hikari.gif) | ![Nozomi](docs/pets/nozomi.gif) | ![poses](docs/poses.png) |
+<p align="center">
+  <img src="docs/pets/hikari.gif" width="192" height="208" alt="Hikari">
+  <img src="docs/pets/nozomi.gif" width="192" height="208" alt="Nozomi">
+</p>
+<p align="center"><img src="docs/showcase.png" width="100%" alt="Hikari and Nozomi in every pose, illustrated and pixel"></p>
+
+The built-in chick:
+
+![poses](docs/poses.png)
 
 | What the agent is doing | What the chick does |
 |---|---|
