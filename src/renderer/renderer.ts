@@ -1,4 +1,5 @@
 import type { DiaryEntry, PetSnapshot, PetState } from "../core/events.js";
+import { lookCell } from "../core/look.js";
 import type { Skin } from "../core/skins.js";
 import type { InputMode, PetApi, PetSettings } from "../main/preload.js";
 import { drawPet, LOGICAL_H, LOGICAL_W } from "./sprite.js";
@@ -29,6 +30,12 @@ let snap: PetSnapshot | null = null;
 let skin: Skin = { type: "pixel", id: "chick", name: "小黃雞", palette: {} };
 let settings: PetSettings = { tts: false, voice: 0, name: "", volume: 1 };
 let atlasImg: HTMLImageElement | null = null;
+/** v2 packs: which look frame faces the mouse (null = cursor on the pet). */
+let lookAt: number | null = null;
+api.onLook((i) => {
+  lookAt = i;
+  document.body.dataset.look = i === null ? "" : String(i);
+});
 
 // ---- skins ----------------------------------------------------------------
 
@@ -95,12 +102,21 @@ function renderPose(s: PetSnapshot) {
 
 function drawAtlas(t: number) {
   if (skin.type !== "atlas" || !atlasImg?.complete || !snap) return;
-  const { row, durations } = skin.rows[snap.state];
-  const total = durations.reduce((a, b) => a + b, 0);
-  let at = t % total;
-  let frame = 0;
-  while (frame < durations.length - 1 && at >= durations[frame]!) at -= durations[frame++]!;
   const { cellWidth: w, cellHeight: h } = skin;
+  let row: number;
+  let frame: number;
+  if (skin.look && snap.state === "idle" && lookAt !== null) {
+    // Idle v2 pets turn to watch the mouse.
+    ({ row, col: frame } = lookCell(lookAt));
+  } else {
+    const { row: r, durations } = skin.rows[snap.state];
+    const total = durations.reduce((a, b) => a + b, 0);
+    let at = t % total;
+    let f = 0;
+    while (f < durations.length - 1 && at >= durations[f]!) at -= durations[f++]!;
+    row = r;
+    frame = f;
+  }
   ctx.clearRect(0, 0, w, h);
   ctx.drawImage(atlasImg, frame * w, row * h, w, h, 0, 0, w, h);
 }

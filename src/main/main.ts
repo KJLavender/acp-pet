@@ -5,10 +5,21 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runRace } from "../core/race.js";
 import { listSkins } from "../core/skins.js";
-import { loadConfig, newPetProfile, saveConfig, SCALES, skinsDir, type PetConfig } from "./config.js";
+import {
+  loadConfig,
+  newPetProfile,
+  saveConfig,
+  SCALES,
+  setBundledPetsDir,
+  skinDirs,
+  skinsDir,
+  type PetConfig,
+} from "./config.js";
 import { PetWindow } from "./pet-window.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
+// dist/main.js → <repo>/pets: Hikari, Nozomi and any other bundled pet packs
+setBundledPetsDir(join(here, "..", "pets"));
 const args = new Set(process.argv.slice(2));
 const SMOKE = args.has("--smoke");
 const DEMO = args.has("--demo");
@@ -89,7 +100,7 @@ async function setSkin(pet: PetWindow, id: string) {
 
 async function petMenu(pet: PetWindow): Promise<MenuItemConstructorOptions[]> {
   const c = pet.controller;
-  const skins = await listSkins(skinsDir());
+  const skins = await listSkins(skinDirs());
   return [
     { label: `${pet.profile.name}(${pet.profile.agent})`, enabled: false },
     { label: "餵任務…", click: () => pet.send("pet:open-input", "feed") },

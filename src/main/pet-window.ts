@@ -6,9 +6,10 @@ import { join } from "node:path";
 import { AcpSource, assertSafeWorkspace } from "../core/acp-source.js";
 import { PetController } from "../core/controller.js";
 import type { PetSnapshot } from "../core/events.js";
+import { lookIndex } from "../core/look.js";
 import { loadSkin, type Skin } from "../core/skins.js";
 import { loadSave, type SaveData } from "../core/store.js";
-import { petHome, saveFileFor, skinsDir, type PetConfig, type PetProfile } from "./config.js";
+import { petHome, saveFileFor, skinDirs, type PetConfig, type PetProfile } from "./config.js";
 
 export const WIN_W = 320;
 export const WIN_H = 400;
@@ -31,6 +32,8 @@ export class PetWindow {
   readonly loaded: Promise<void>;
   skin: Skin;
   lastSnapshot: PetSnapshot | null = null;
+  private lookTimer: ReturnType<typeof setInterval>;
+  private lastLook: number | null | undefined;
   private drag: { cursorX: number; cursorY: number; winX: number; winY: number; timer: ReturnType<typeof setInterval> } | null = null;
 
   private constructor(opts: PetWindowOptions, save: SaveData, skin: Skin) {
@@ -96,6 +99,7 @@ export class PetWindow {
     });
     void this.win.loadFile(opts.page);
     this.applySettings(config);
+    this.lookTimer = setInterval(() => this.updateLook(), 80);
     // Shown without focus; transparent areas let clicks through until the
     // renderer reports the pointer is over the pet.
     this.win.showInactive();
@@ -104,7 +108,7 @@ export class PetWindow {
 
   static async create(opts: PetWindowOptions): Promise<PetWindow> {
     const save = await loadSave(saveFileFor(opts.profile, opts.index));
-    const skin = await loadSkin(skinsDir(), opts.profile.skin, opts.log);
+    const skin = await loadSkin(skinDirs(), opts.profile.skin, opts.log);
     return new PetWindow(opts, save, skin);
   }
 
@@ -132,6 +136,7 @@ export class PetWindow {
 
   sendSkin() {
     this.send("pet:skin", this.skin);
+    this.lastLook = undefined;
   }
 
   sendSettings(config: PetConfig) {
@@ -143,7 +148,7 @@ export class PetWindow {
   }
 
   async setSkin(id: string, log: (m: string) => void) {
-    this.skin = await loadSkin(skinsDir(), id, log);
+    this.skin = await loadSkin(skinDirs(), id, log);
     this.profile.skin = this.skin.id;
     this.sendSkin();
   }
@@ -191,7 +196,26 @@ export class PetWindow {
     await this.controller.persist();
   }
 
+  /**
+   * v2 pet packs can look around: send which of the 16 look frames points at
+   * the mouse, or null when the cursor is right on top of the pet.
+   */
+  private updateLook() {
+    if (this.win.isDestroyed() || this.skin.type !== "atlas" || !this.skin.look) return;
+    const b = this.win.getBounds();
+    const c = screen.getCursorScreenPoint();
+    // the pet's face sits a bit below the middle of the window
+    const dx = c.x - (b.x + b.width / 2);
+    const dy = c.y - (b.y + b.height * 0.62);
+    const deadzone = 0.15 * b.width;
+    const look = Math.hypot(dx, dy) < deadzone ? null : lookIndex((Math.atan2(dx, -dy) * 180) / Math.PI);
+    if (look === this.lastLook) return;
+    this.lastLook = look;
+    this.send("pet:look", look);
+  }
+
   async dispose() {
+    clearInterval(this.lookTimer);
     await this.persist();
     await this.controller.dispose();
     if (!this.win.isDestroyed()) this.win.destroy();

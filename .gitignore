@@ -2,3 +2,4 @@ node_modules/
 dist/
 smoke-out/
 *.log
+__pycache__/

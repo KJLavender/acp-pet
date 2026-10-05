@@ -32,11 +32,18 @@ export const SCALES = [0.75, 1, 1.25, 1.5, 2] as const;
 
 export const petHome = () => process.env.ACP_PET_HOME ?? join(homedir(), ".acp-pet");
 export const skinsDir = () => join(petHome(), "skins");
+
+/** Pets shipped with the app (pets/ in the repo); set once by main at startup. */
+let bundledPetsDir: string | null = null;
+export const setBundledPetsDir = (dir: string) => void (bundledPetsDir = dir);
+/** Where skins are looked up, in order: bundled pets first, then the user's folder. */
+export const skinDirs = () => (bundledPetsDir ? [bundledPetsDir, skinsDir()] : [skinsDir()]);
 export const saveFileFor = (pet: PetProfile, index: number) =>
   join(petHome(), index === 0 ? "save.json" : `save-${pet.id}.json`);
 
-const NAMES = ["小黃", "小白", "小綠", "小粉", "小黑"];
-const SKINS = ["chick", "snow", "mint", "sakura", "night"];
+// The first two pets are the Tachibana twins; after that, recolored chicks.
+const NAMES = ["光", "望", "小黃", "小白", "小綠", "小粉", "小黑"];
+const SKINS = ["hikari", "nozomi", "chick", "snow", "mint", "sakura", "night"];
 
 export function newPetProfile(existing: PetProfile[], agent = existing[0]?.agent ?? "claude"): PetProfile {
   let n = existing.length + 1;
