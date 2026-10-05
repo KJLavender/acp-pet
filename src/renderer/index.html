@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="stage">
+      <div id="bubble" class="hit hidden"></div>
+      <div id="sign" class="hit hidden">
+        <div class="sign-title">牠想做這件事,可以嗎?</div>
+        <div id="sign-what"></div>
+        <code id="sign-detail"></code>
+        <div class="sign-row">
+          <button id="allow">准</button>
+          <button id="reject">不准</button>
+          <span id="sign-timer"></span>
+        </div>
+      </div>
+      <div id="art" class="hit">
+        <canvas id="pet"></canvas>
+        <img id="pet-img" class="hidden" alt="" draggable="false" />
+        <span id="badge" class="hidden"></span>
+        <span id="progress" class="hidden"></span>
+        <span id="name-tag"></span>
+      </div>
+      <div id="stats" class="hidden">
+        <span id="lv"></span>
+        <label>體力<meter id="energy" min="0" max="100"></meter></label>
+        <label>心情<meter id="mood" min="0" max="100"></meter></label>
+        <label>無聊<meter id="boredom" min="0" max="100"></meter></label>
+        <label>XP<meter id="xp" min="0" max="50"></meter></label>
+      </div>
+      <form id="feed" class="hit hidden">
+        <input id="feed-input" placeholder="餵牠一個任務… (/demo 試演)" maxlength="2000" />
+      </form>
+      <div id="diary" class="hit hidden">
+        <div class="diary-head">寵物日記 <button id="diary-close">×</button></div>
+        <ul id="diary-list"></ul>
+      </div>
+    </div>
+    <script src="renderer.js"></script>
+  </body>
+</html>
