@@ -44,6 +44,8 @@ const PIXEL_SCALE = 5;
 function applySkin(next: Skin) {
   skin = next;
   art.classList.toggle("atlas", skin.type === "atlas");
+  art.classList.toggle("pixelated", skin.type === "atlas" && skin.pixelated);
+  document.body.classList.toggle("atlas", skin.type === "atlas");
   canvas.classList.toggle("hidden", skin.type === "images");
   petImg.classList.toggle("hidden", skin.type !== "images");
   petImg.removeAttribute("src");

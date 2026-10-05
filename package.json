@@ -12,7 +12,7 @@
     "smoke": "npm run build && electron . --smoke",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "pets:draw": "python scripts/pets/draw_twins.py --preview",
+    "pets:draw": "python scripts/pets/draw_twins_hd.py --preview && python scripts/pets/draw_twins.py --preview",
     "pets:install-codex": "node scripts/install-codex-pets.mjs"
   },
   "license": "MIT",

@@ -211,7 +211,17 @@ async function scenarioTwins(pet: PetWindow) {
     await shot(pet, `twins-${id}-look-right`, 400);
     const look = await evalIn<string>(pet, "document.body.dataset.look");
     check(`twins: ${id} turns to look at the cursor when idle`, look === "4" && pet.controller.brain.snapshot().state === "idle", `look=${look}`);
+    const size = await evalIn<{ w: number; h: number; render: string }>(
+      pet,
+      `(() => { const c = document.getElementById("pet"); const r = c.getBoundingClientRect();
+        return { w: r.width, h: r.height, render: getComputedStyle(c).imageRendering }; })()`,
+    );
+    check(`twins: ${id} is shown at native 192×208 (no blurry resampling)`, size.w === 192 && size.h === 208, JSON.stringify(size));
   }
+  await pet.setSkin("hikari-pixel", log);
+  await shot(pet, "twins-hikari-pixel", 500);
+  const pixel = await evalIn<string>(pet, `getComputedStyle(document.getElementById("pet")).imageRendering`);
+  check("twins: the pixel version scales with sharp pixels", pixel === "pixelated", pixel);
   await pet.setSkin("chick", log);
 }
 

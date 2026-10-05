@@ -2,7 +2,7 @@
 
 **English** | [繁體中文](README.zh-TW.md)
 
-A pixel pet that lives on your desktop and is secretly a dashboard for an [ACP](https://agentclientprotocol.com) coding agent (Claude Code, Codex, Gemini…). It doesn't chat and it doesn't guess from logs: it consumes the agent's real `session/update` event stream and acts out each event as it happens. Out of the box the pets are Hikari and Nozomi from *Blue Archive* ([below](#meet-hikari--nozomi)); there's also a code-drawn chick, and any Codex pet pack works.
+A desktop pet that lives on your screen and is secretly a dashboard for an [ACP](https://agentclientprotocol.com) coding agent (Claude Code, Codex, Gemini…). It doesn't chat and it doesn't guess from logs: it consumes the agent's real `session/update` event stream and acts out each event as it happens. Out of the box the pets are Hikari and Nozomi from *Blue Archive* ([below](#meet-hikari--nozomi)); there's also a code-drawn chick, and any Codex pet pack works.
 
 | Hikari | Nozomi | Chick |
 |:---:|:---:|:---:|
@@ -27,12 +27,17 @@ On top of that there's a small tamagotchi layer. **Energy** drains with every to
 
 ## Meet Hikari & Nozomi
 
-The two default pets are the Tachibana twins from *Blue Archive*: **Hikari** (calm, deadpan, salutes at the cap) and **Nozomi** (side ponytail, fang grin). They are hand-coded pixel art: `scripts/pets/draw_twins.py` draws every frame from code, with no image generator involved. The previews at the top play every animation row, then the look-around.
+The two default pets are the Tachibana twins from *Blue Archive*: **Hikari** (calm, deadpan, salutes at the cap) and **Nozomi** (side ponytail, fang grin). Both are drawn entirely from code, with no image generator involved, and each comes in two styles you can switch between under Menu → Looks:
+
+- **Illustrated** (`hikari`, `nozomi`, the default): smooth chibi illustration. `scripts/pets/draw_twins_hd.py` paints every frame at 4× resolution, downsamples it for anti-aliasing, and adds a sticker outline.
+- **Pixel** (`hikari-pixel`, `nozomi-pixel`): 48×52 pixel art scaled 4× by `scripts/pets/draw_twins.py`, displayed with sharp nearest-neighbour scaling.
+
+The previews at the top show the illustrated version playing every animation row, then the look-around. The pixel previews are in `docs/pets/*-pixel.gif`.
 
 - They are **Codex pet v2** packs (`pets/<id>/pet.json` + an 8×11 `spritesheet.webp`), the same format as [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet). Both pass that project's official `validate_atlas.py` with no errors.
 - v2 packs carry 16 look directions, so while idle the pet **turns to watch your mouse**.
 - They work in Codex too: `npm run pets:install-codex` copies them to `~/.codex/pets/`. Then pick one in Codex settings.
-- To redraw them after editing the script: `npm run pets:draw` (needs Python + Pillow).
+- To redraw them after editing the scripts: `npm run pets:draw` (needs Python + Pillow).
 - They're fan art; see [ASSETS-LICENSE.md](ASSETS-LICENSE.md). The characters belong to NEXON Games / Yostar, and the sprites are for non-commercial use.
 
 ## Quick start
@@ -126,8 +131,9 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 | `src/core/race.ts` | Race referee |
 | `src/core/skins.ts` | Skin loading: recolors, picture folders, Codex pet packs (v1 and v2) |
 | `src/core/look.ts` | v2 look-around: cursor angle → one of 16 frames |
-| `pets/` | Bundled pet packs: Hikari and Nozomi |
-| `scripts/pets/draw_twins.py` | Draws the Hikari and Nozomi sprite sheets from code |
+| `pets/` | Bundled pet packs: Hikari and Nozomi, illustrated and pixel |
+| `scripts/pets/draw_twins_hd.py` | Draws the illustrated Hikari and Nozomi sprite sheets |
+| `scripts/pets/draw_twins.py` | Draws the pixel versions, and defines the animation rows both styles share |
 | `src/core/fake-source.ts` | Scripted turns for `/demo` and `/fail` |
 | `src/main/` | Electron: one transparent click-through window per pet, tray, menus, settings |
 | `src/renderer/` | Zero-asset pixel sprite, skin rendering, speech bubble, permission sign, TTS |

@@ -2,7 +2,7 @@
 
 [English](README.md) | **繁體中文**
 
-住在桌面上的像素寵物,其實是一個 [ACP](https://agentclientprotocol.com) coding agent(Claude Code、Codex、Gemini…)的擬人化儀表板。牠不聊天、也不靠讀 log 猜——牠直接吃 agent 真實的 `session/update` 事件流,事件發生的當下就演給你看。預設的寵物是《蔚藍檔案》的光和望([見下方](#光與望));另外還有程式畫的小雞,任何 Codex 角色包也都能用。
+住在桌面上的寵物,其實是一個 [ACP](https://agentclientprotocol.com) coding agent(Claude Code、Codex、Gemini…)的擬人化儀表板。牠不聊天、也不靠讀 log 猜——牠直接吃 agent 真實的 `session/update` 事件流,事件發生的當下就演給你看。預設的寵物是《蔚藍檔案》的光和望([見下方](#光與望));另外還有程式畫的小雞,任何 Codex 角色包也都能用。
 
 | 光 Hikari | 望 Nozomi | 小雞 |
 |:---:|:---:|:---:|
@@ -27,7 +27,12 @@
 
 ## 光與望
 
-預設的兩隻寵物是《蔚藍檔案》的橘家雙胞胎:**光(Hikari)**淡定、會在帽簷敬禮;**望(Nozomi)**綁側馬尾、露虎牙笑。她們是用程式手刻的像素圖:`scripts/pets/draw_twins.py` 一格一格畫出每一張,沒有用任何生圖工具。最上方的預覽動畫會依序播完每一列動作,最後是轉頭看四周。
+預設的兩隻寵物是《蔚藍檔案》的橘家雙胞胎:**光(Hikari)**淡定、會在帽簷敬禮;**望(Nozomi)**綁側馬尾、露虎牙笑。兩隻都完全用程式畫出來,沒有用任何生圖工具,而且各有兩種畫風,可以在右鍵 → 外表切換:
+
+- **插畫風**(`hikari`、`nozomi`,預設):平滑的 Q 版插畫。`scripts/pets/draw_twins_hd.py` 先用 4 倍解析度畫每一張,再縮小去鋸齒,最後加上貼紙描邊。
+- **像素風**(`hikari-pixel`、`nozomi-pixel`):`scripts/pets/draw_twins.py` 畫的 48×52 像素圖放大 4 倍,顯示時用銳利的最近鄰縮放。
+
+最上方的預覽動畫是插畫版,會依序播完每一列動作,最後是轉頭看四周;像素版的預覽在 `docs/pets/*-pixel.gif`。
 
 - 她們是 **Codex pet v2** 角色包(`pets/<id>/pet.json` + 8×11 格的 `spritesheet.webp`),跟 [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet) 同一個格式,也都通過該專案官方的 `validate_atlas.py`,沒有任何錯誤。
 - v2 角色包有 16 個看的方向,所以閒著時寵物會**轉頭看你的滑鼠**。
@@ -126,8 +131,9 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 | `src/core/race.ts` | 比賽裁判 |
 | `src/core/skins.ts` | 載入外表:配色、圖片資料夾、Codex 角色包(v1 和 v2) |
 | `src/core/look.ts` | v2 看游標:游標角度 → 16 張畫面中的一張 |
-| `pets/` | 內建角色包:光和望 |
-| `scripts/pets/draw_twins.py` | 用程式畫出光和望的 spritesheet |
+| `pets/` | 內建角色包:光和望,插畫版與像素版 |
+| `scripts/pets/draw_twins_hd.py` | 畫插畫版光和望的 spritesheet |
+| `scripts/pets/draw_twins.py` | 畫像素版,也定義兩種畫風共用的動畫列 |
 | `src/core/fake-source.ts` | `/demo`、`/fail` 的腳本 |
 | `src/main/` | Electron:每隻寵物一個透明、可點穿的視窗,托盤、選單、設定 |
 | `src/renderer/` | 零素材像素 sprite、外表繪製、對話氣泡、權限牌子、TTS |
