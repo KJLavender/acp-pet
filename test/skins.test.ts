@@ -46,6 +46,14 @@ describe("skins", () => {
     expect(s.frames.sick).toMatch(/^data:image\/png/); // → idle
   });
 
+  it("image folder: poses that only have idle.png to fall back on are marked generic", async () => {
+    const dir = await skinsDir({ cat: { "idle.png": PNG, "working.png": PNG, "happy.png": PNG, "sick.png": PNG } });
+    const s = await loadSkin(dir, "cat");
+    if (s.type !== "images") throw new Error("expected images skin");
+    expect(s.generic).toEqual(expect.arrayContaining(["bored", "sleeping", "tugging"]));
+    for (const own of ["idle", "reading", "typing", "happy", "levelup", "sick", "sulking"]) expect(s.generic).not.toContain(own);
+  });
+
   it("image folder without idle is rejected and falls back to the chick", async () => {
     const dir = await skinsDir({ broken: { "happy.png": PNG } });
     const errors: string[] = [];

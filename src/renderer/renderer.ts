@@ -44,6 +44,8 @@ const PIXEL_SCALE = 5;
 function applySkin(next: Skin) {
   skin = next;
   art.classList.toggle("atlas", skin.type === "atlas");
+  art.classList.toggle("images", skin.type === "images");
+  document.body.classList.toggle("images", skin.type === "images");
   art.classList.toggle("pixelated", skin.type === "atlas" && skin.pixelated);
   document.body.classList.toggle("atlas", skin.type === "atlas");
   canvas.classList.toggle("hidden", skin.type === "images");
@@ -90,7 +92,10 @@ const BADGES: Partial<Record<PetState, string>> = {
 function renderPose(s: PetSnapshot) {
   art.className = art.className.replace(/\bpose-\S+/g, "").trim();
   art.classList.add(`pose-${s.state}`);
-  const showBadge = skin.type !== "pixel" && BADGES[s.state];
+  // A picture skin with its own drawing for this pose needs no badge or filter.
+  const generic = skin.type === "atlas" || (skin.type === "images" && skin.generic.includes(s.state));
+  art.classList.toggle("generic", generic);
+  const showBadge = generic && BADGES[s.state];
   badge.textContent = showBadge ? BADGES[s.state]! + (s.needs.level >= 5 ? "👑" : "") : "";
   badge.classList.toggle("hidden", !showBadge);
   if (skin.type === "images") {
