@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runRace } from "../core/race.js";
+import { startAmbient } from "./ambient-driver.js";
 import { listSkins } from "../core/skins.js";
 import {
   loadConfig,
@@ -66,7 +67,7 @@ async function removePet(pet: PetWindow) {
   pets.forEach((p) => p.sendSettings(config));
 }
 
-export async function updateSettings(patch: Partial<Pick<PetConfig, "scale" | "alwaysOnTop" | "tts">>) {
+export async function updateSettings(patch: Partial<Pick<PetConfig, "scale" | "alwaysOnTop" | "tts" | "wander">>) {
   Object.assign(config, patch);
   for (const p of pets) p.applySettings(config);
   await saveConfig(config);
@@ -145,6 +146,15 @@ function appMenu(): MenuItemConstructorOptions[] {
     },
     { label: "永遠在最上層", type: "checkbox", checked: config.alwaysOnTop, click: (i) => void updateSettings({ alwaysOnTop: i.checked }) },
     { label: "唸出台詞 (TTS)", type: "checkbox", checked: config.tts, click: (i) => void updateSettings({ tts: i.checked }) },
+    {
+      label: "自由走動・互動",
+      type: "checkbox",
+      checked: config.wander,
+      click: (i) => {
+        void updateSettings({ wander: i.checked });
+        if (!i.checked) pets.forEach((p) => p.stopWalking());
+      },
+    },
     { label: "打開設定資料夾…", click: () => void shell.openPath(dirname(skinsDir())) },
     { type: "separator" },
     { label: "離開", click: () => app.quit() },
@@ -211,6 +221,8 @@ async function boot() {
 
   setInterval(() => pets.forEach((p) => p.controller.tick()), 250);
   setInterval(() => pets.forEach((p) => void p.persist()), 30_000);
+  // Smoke runs drive ambient scenes themselves; random strolls would break their checks.
+  if (!SMOKE) startAmbient(() => pets, () => config.wander, log);
 
   if (SMOKE) {
     const { runSmoke } = await import("./smoke.js");

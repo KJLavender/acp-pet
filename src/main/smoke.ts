@@ -8,6 +8,7 @@ import { join } from "node:path";
 import type { PetEvent } from "../core/events.js";
 import { CODEX_ATLAS } from "../core/skins.js";
 import { skinsDir } from "./config.js";
+import { perform } from "./ambient-driver.js";
 import { addPet, log, pets, startRace, updateSettings } from "./main.js";
 import { WIN_H, WIN_W, type PetWindow } from "./pet-window.js";
 
@@ -298,6 +299,46 @@ async function scenarioRace() {
   check("race: exactly one winner and one runner-up", winners === 1 && losers === 1, lines.join(" | "));
 }
 
+/** Ambient life with real windows: stroll, chat, interruption, and the hover layout fix. */
+async function scenarioAmbient() {
+  const [a, b] = [pets[0]!, pets[1]!];
+  await sleep(4500); // let race reactions settle back to idle
+
+  // hovering shows the stats panel; it must float, not push the pet into the bubble
+  const artTop = (p: PetWindow) => evalIn<number>(p, `document.getElementById("art").getBoundingClientRect().top`);
+  const before = await artTop(a);
+  await evalIn(a, `document.getElementById("stats").classList.remove("hidden")`);
+  const after = await artTop(a);
+  await evalIn(a, `document.getElementById("stats").classList.add("hidden")`);
+  check("hover: stats panel doesn't move the pet (text stays readable)", before === after, `${before} → ${after}`);
+
+  const [x0] = a.win.getPosition();
+  const walk = perform(pets, { kind: "wander", pet: 0, toX: x0! + 120 });
+  await sleep(500);
+  const walkingClass = await evalIn<boolean>(a, `document.getElementById("art").classList.contains("walking")`);
+  await shot(a, "ambient-walking", 0);
+  await walk;
+  const [x1] = a.win.getPosition();
+  const stopped = !(await evalIn<boolean>(a, `document.getElementById("art").classList.contains("walking")`));
+  check("ambient: a stroll really moves the window and plays the walk", x1 === x0! + 120 && walkingClass && stopped, `${x0} → ${x1}`);
+
+  await perform(pets, { kind: "chat", a: 0, b: 1, lines: ["ノゾミ,班表排好了嗎?", "還沒~"] });
+  await sleep(300);
+  const lines = [a.controller.brain.snapshot().line, b.controller.brain.snapshot().line];
+  await Promise.all([shot(a, "ambient-chat-a", 0), shot(b, "ambient-chat-b", 0)]);
+  check("ambient: two pets take turns talking", lines[0] === "ノゾミ,班表排好了嗎?" && lines[1] === "還沒~", lines.join(" | "));
+
+  const [x2] = a.win.getPosition();
+  const interrupted = perform(pets, { kind: "wander", pet: 0, toX: x2! + 400 });
+  await sleep(300);
+  a.controller.brain.askPermission({ id: "amb", title: "x", deadline: Date.now() + 60_000 });
+  await interrupted;
+  const [x3] = a.win.getPosition();
+  check("ambient: work (a permission sign) stops a stroll on the spot", x3! > x2! && x3! < x2! + 400 && !a.walking, `${x2} → ${x3}`);
+  check("ambient: a pet that is asking for permission is not free to wander", !a.isFree());
+  a.controller.brain.resolvePermission("amb", "allow", Date.now());
+}
+
 export async function runSmoke() {
   await mkdir(outDir, { recursive: true });
   const pet = pets[0]!;
@@ -311,6 +352,7 @@ export async function runSmoke() {
     ["tts", () => scenarioTts(pet)],
     ["relay", () => scenarioRelay(pet)],
     ["race", () => scenarioRace()],
+    ["ambient", () => scenarioAmbient()],
   ];
   for (const [name, run] of scenarios) {
     log(`── scenario: ${name}`);

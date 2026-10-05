@@ -18,7 +18,7 @@ describe("config", () => {
     });
     expect(cfg.pets.map((p) => p.id)).toEqual(["pet1", "pet2"]);
     expect(cfg.pets[0]).toMatchObject({ name: "阿肥", agent: "claude" });
-    expect(cfg.pets[1]).toMatchObject({ agent: "gemini", skin: "nozomi", name: "望" });
+    expect(cfg.pets[1]).toMatchObject({ agent: "gemini", skin: "nozomi", name: "ノゾミ" });
     expect(cfg.pets[0]!.workspace).not.toBe(cfg.pets[1]!.workspace);
     expect(cfg).toMatchObject({ scale: 1, permissionTimeoutSec: 60, tts: true, alwaysOnTop: false });
   });

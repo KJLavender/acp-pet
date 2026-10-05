@@ -169,6 +169,7 @@ export class PetWindow {
   }
 
   dragStart() {
+    this.stopWalking();
     const c = screen.getCursorScreenPoint();
     const [winX, winY] = this.win.getPosition();
     if (this.drag) clearInterval(this.drag.timer);
@@ -188,6 +189,7 @@ export class PetWindow {
   async dragEnd() {
     if (this.drag) clearInterval(this.drag.timer);
     this.drag = null;
+    this.placedAt = Date.now();
     await this.persist();
   }
 
@@ -199,13 +201,13 @@ export class PetWindow {
     await this.controller.persist();
   }
 
+  /** Smoke tests turn this off so the real mouse can't race their scripted looks. */
+  trackCursor = true;
+
   /**
    * v2 pet packs can look around: send which of the 16 look frames points at
    * the mouse, or null when the cursor is right on top of the pet.
    */
-  /** Smoke tests turn this off so the real mouse can't race their scripted looks. */
-  trackCursor = true;
-
   private updateLook() {
     if (!this.trackCursor || this.win.isDestroyed() || this.skin.type !== "atlas" || !this.skin.look) return;
     const b = this.win.getBounds();
@@ -220,7 +222,77 @@ export class PetWindow {
     this.send("pet:look", look);
   }
 
+  // ── ambient life: walking, facing, idle chatter ──────────────────────
+
+  private walk: { timer: ReturnType<typeof setInterval>; done: () => void } | null = null;
+  /** When the user last dropped the pet somewhere; it stays put for a while after. */
+  private placedAt = 0;
+  static readonly STAY_AFTER_DRAG_MS = 60_000;
+
+  get walking(): boolean {
+    return this.walk !== null;
+  }
+
+  /** Idle enough to wander or chat: not working, not asking, not held, not just placed. */
+  isFree(now = Date.now()): boolean {
+    const s = this.controller.brain.snapshot();
+    return (
+      !this.win.isDestroyed() &&
+      !this.controller.busy &&
+      !s.permission &&
+      (s.state === "idle" || s.state === "bored") &&
+      !this.drag &&
+      !this.walk &&
+      now - this.placedAt > PetWindow.STAY_AFTER_DRAG_MS
+    );
+  }
+
+  /** Stroll horizontally to x (window left edge). Resolves on arrival or interruption. */
+  walkTo(x: number, pxPerSec = 80): Promise<void> {
+    this.stopWalking();
+    return new Promise((resolve) => {
+      const [startX] = this.win.getPosition();
+      const dir = Math.sign(x - startX!);
+      if (dir === 0) return resolve();
+      this.send("pet:walk", dir);
+      const stepMs = 30;
+      const step = (pxPerSec * stepMs) / 1000;
+      const timer = setInterval(() => {
+        if (this.win.isDestroyed()) return this.stopWalking();
+        const s = this.controller.brain.snapshot();
+        // Work, a permission sign or the user grabbing the pet ends the stroll.
+        if (this.controller.busy || s.permission || this.drag) return this.stopWalking();
+        const [cx, cy] = this.win.getPosition();
+        const next = dir > 0 ? Math.min(x, cx! + step) : Math.max(x, cx! - step);
+        this.win.setPosition(Math.round(next), cy!);
+        if (Math.round(next) === Math.round(x)) this.stopWalking();
+      }, stepMs);
+      this.walk = { timer, done: resolve };
+    });
+  }
+
+  stopWalking() {
+    if (!this.walk) return;
+    clearInterval(this.walk.timer);
+    const done = this.walk.done;
+    this.walk = null;
+    this.send("pet:walk", 0);
+    void this.persist();
+    done();
+  }
+
+  /** -1 = turn to face left, 1 = right. */
+  face(dir: -1 | 1) {
+    this.send("pet:face", dir);
+  }
+
+  say(line: string) {
+    this.controller.brain.say(line);
+    this.controller.tick();
+  }
+
   async dispose() {
+    this.stopWalking();
     clearInterval(this.lookTimer);
     await this.persist();
     await this.controller.dispose();

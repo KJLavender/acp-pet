@@ -30,6 +30,18 @@ let snap: PetSnapshot | null = null;
 let skin: Skin = { type: "pixel", id: "chick", name: "小黃雞", palette: {} };
 let settings: PetSettings = { tts: false, voice: 0, name: "", volume: 1 };
 let atlasImg: HTMLImageElement | null = null;
+/** Strolling: -1 left, 1 right, 0 standing. Picture skins flip to face where they go. */
+let walkDir = 0;
+function setFacing(dir: number) {
+  art.classList.toggle("face-left", dir < 0);
+}
+api.onWalk((dir) => {
+  walkDir = dir;
+  art.classList.toggle("walking", dir !== 0);
+  if (dir !== 0) setFacing(dir);
+});
+api.onFace((dir) => setFacing(dir));
+
 /** v2 packs: which look frame faces the mouse (null = cursor on the pet). */
 let lookAt: number | null = null;
 api.onLook((i) => {
@@ -112,7 +124,15 @@ function drawAtlas(t: number) {
   const { cellWidth: w, cellHeight: h } = skin;
   let row: number;
   let frame: number;
-  if (skin.look && snap.state === "idle" && lookAt !== null) {
+  if (walkDir !== 0) {
+    // Codex packs have proper walk cycles: running-right is row 1, running-left row 2.
+    const durations = [120, 120, 120, 120, 120, 120, 120, 220];
+    let at = t % durations.reduce((a, b) => a + b, 0);
+    let f = 0;
+    while (f < durations.length - 1 && at >= durations[f]!) at -= durations[f++]!;
+    row = walkDir > 0 ? 1 : 2;
+    frame = f;
+  } else if (skin.look && snap.state === "idle" && lookAt !== null) {
     // Idle v2 pets turn to watch the mouse.
     ({ row, col: frame } = lookCell(lookAt));
   } else {
