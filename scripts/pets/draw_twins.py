@@ -3,8 +3,8 @@
 Draws every frame of a Codex pet v2 atlas (8 x 11 cells of 192x208) from
 code: each frame is a 48x52 pixel sprite scaled 4x with nearest-neighbour.
 
-    python scripts/pets/draw_twins.py            # writes pets/hikari, pets/nozomi
-    python scripts/pets/draw_twins.py --preview  # also writes docs/pets/*.gif
+    python scripts/pets/draw_twins.py            # writes pets/hikari-pixel, pets/nozomi-pixel
+    python scripts/pets/draw_twins.py --preview  # also writes docs/pets/*-pixel.gif
 
 Requires Pillow.
 """
@@ -622,14 +622,20 @@ META = {
 }
 
 
+PACK_SUFFIX = "-pixel"  # the illustrated version (draw_twins_hd.py) owns the plain ids
+
+
 def write_pet(tw: Twin, out_root: Path) -> Path:
-    out = out_root / tw.name
+    pack_id = tw.name + PACK_SUFFIX
+    out = out_root / pack_id
     out.mkdir(parents=True, exist_ok=True)
     build_atlas(tw).save(out / "spritesheet.webp", "WEBP", lossless=True, quality=100, method=6)
+    # acp-pet hint: scale this pack with nearest-neighbour so pixels stay sharp
+    (out / "skin.json").write_text(json.dumps({"pixelated": True}) + "\n", encoding="utf-8")
     name, desc = META[tw.name]
     manifest = {
-        "id": tw.name,
-        "displayName": name,
+        "id": pack_id,
+        "displayName": f"{name} (pixel)",
         "description": desc,
         "spriteVersionNumber": 2,
         "spritesheetPath": "spritesheet.webp",
@@ -657,7 +663,7 @@ def write_preview(tw: Twin, out_dir: Path, bg=(246, 241, 228)) -> Path:
     for c, pose in enumerate(rows[9] + rows[10]):
         frames.append(_flat(tw, pose, c, bg))
         durs.append(120)
-    path = out_dir / f"{tw.name}.gif"
+    path = out_dir / f"{tw.name}{PACK_SUFFIX}.gif"
     frames[0].save(path, save_all=True, append_images=frames[1:], duration=durs, loop=0, disposal=2)
     return path
 

@@ -33,7 +33,14 @@ html, body {
   height: 180px;
   image-rendering: pixelated;
 }
-#art.atlas #pet { width: auto; height: 180px; image-rendering: auto; }
+/* Codex packs are drawn at their native 192×208 cell size, so nothing gets
+   resampled at 100%; at other sizes illustrated packs scale smoothly and
+   pixel packs stay sharp. */
+#art.atlas { width: 192px; height: 208px; }
+#art.atlas #pet { width: 192px; height: 208px; image-rendering: auto; }
+#art.atlas.pixelated #pet { image-rendering: pixelated; }
+body.atlas #bubble { bottom: 226px; }
+body.atlas #sign { bottom: 222px; }
 #pet-img { max-width: 200px; max-height: 180px; object-fit: contain; pointer-events: none; }
 #pet-img.pixelated { image-rendering: pixelated; }
 

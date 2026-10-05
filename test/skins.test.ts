@@ -109,7 +109,7 @@ describe("skins", () => {
       v1: { "pet.json": JSON.stringify({ spritesheetPath: "s.webp" }), "s.webp": PNG },
       v2: { "pet.json": JSON.stringify({ spriteVersionNumber: 2, spritesheetPath: "s.webp" }), "s.webp": PNG },
     });
-    expect(await loadSkin(dir, "v1")).toMatchObject({ type: "atlas", look: false });
+    expect(await loadSkin(dir, "v1")).toMatchObject({ type: "atlas", look: false, pixelated: false });
     expect(await loadSkin(dir, "v2")).toMatchObject({ type: "atlas", look: true });
   });
 
@@ -126,10 +126,11 @@ describe("skins", () => {
     expect(list.some((s) => s.id === "cat")).toBe(true);
   });
 
-  it("the bundled Hikari and Nozomi packs load as v2", async () => {
+  it("the bundled Hikari and Nozomi packs load as v2; only the pixel versions are pixelated", async () => {
     const pets = join(__dirname, "..", "pets");
     for (const id of ["hikari", "nozomi"]) {
-      expect(await loadSkin(pets, id)).toMatchObject({ type: "atlas", id, look: true });
+      expect(await loadSkin(pets, id)).toMatchObject({ type: "atlas", id, look: true, pixelated: false });
+      expect(await loadSkin(pets, `${id}-pixel`)).toMatchObject({ type: "atlas", look: true, pixelated: true });
     }
   });
 });

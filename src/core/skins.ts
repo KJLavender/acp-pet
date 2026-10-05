@@ -27,6 +27,8 @@ export type Skin =
       rows: Record<PetState, AtlasRow>;
       /** v2 packs (spriteVersionNumber 2) have 16 look-direction frames in rows 9–10. */
       look: boolean;
+      /** Pixel-art packs scale with nearest-neighbour; set by an optional skin.json next to pet.json. */
+      pixelated: boolean;
     };
 
 export type SkinInfo = { id: string; name: string; type: Skin["type"] };
@@ -143,6 +145,7 @@ export async function loadFolderSkin(dir: string, id: string): Promise<Skin> {
       cellHeight: CODEX_ATLAS.cellHeight,
       rows: CODEX_POSE_ROWS,
       look: pet.spriteVersionNumber === 2,
+      pixelated: (await readJson(join(dir, "skin.json")))?.pixelated === true,
     };
   }
 
