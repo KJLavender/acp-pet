@@ -55,7 +55,7 @@ npm start         # the real thing
 ```
 
 - **Click** the chick to pet it. **Double-click** to feed it a task. **Drag** to move it.
-- **Right-click** (or the tray icon) for the menu: demo, looks, diary, sleep, add a pet, race, size, always-on-top, read-aloud, quit.
+- **Right-click** (or the tray icon) for the menu: demo, looks, diary, sleep, add a pet, race, size, always-on-top, read-aloud, wander, quit.
 - Things you can type into the task box:
 
 | Input | What happens |
@@ -67,6 +67,17 @@ npm start         # the real thing
 ## Multiple pets & racing
 
 Menu → **Add a pet** puts another pet on the desktop. Each pet has its own agent, workspace, look and save file. Menu → **Race** sends the same task to every idle pet at once. The first to finish gets 🏆 and 15 bonus XP; the others sulk. To race different agents against each other (Claude vs Codex), give each pet a different `agent` in the config.
+
+## Life on the desktop
+
+Like the classic [Shimeji](https://kilkakon.com/shimeji/), the pets don't just stand still while you're busy with something else:
+
+- They **stroll** back and forth along the bottom of the screen, keeping the height you put them at.
+- Two idle pets **walk over to each other and chat** (Hikari and Nozomi have their own twin banter).
+- When your mouse comes close, they sometimes **turn to you and say hi**.
+- Now and then they **mumble** to themselves.
+
+They stay put while they're working, holding up a permission sign or being dragged, and for a minute after you drop them somewhere. The mouse resting on a pet also keeps it from walking off. Menu → **Wander** turns all of this off (`"wander": false` in the config).
 
 ## Looks (skins)
 
@@ -97,17 +108,18 @@ On first launch the app writes `~/.acp-pet/config.json`:
 ```json
 {
   "pets": [
-    { "id": "pet1", "name": "光", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "hikari" }
+    { "id": "pet1", "name": "ヒカリ", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "hikari" }
   ],
   "permissionTimeoutSec": 60,
   "scale": 1,
   "alwaysOnTop": true,
-  "tts": false
+  "tts": false,
+  "wander": true
 }
 ```
 
 - `agent` is any [acpx agent name](https://github.com/openclaw/acpx). The agent must already be installed and logged in. For `claude`, acpx fetches the `@agentclientprotocol/claude-agent-acp` adapter automatically.
-- `scale` (75%–200%), `alwaysOnTop` and `tts` (read the speech bubbles aloud) can also be changed from the menu.
+- `scale` (75%–200%), `alwaysOnTop`, `tts` (read the speech bubbles aloud) and `wander` (stroll and chat on their own) can also be changed from the menu.
 - A v0.1 config (`{ "agent", "workspace" }`) is migrated automatically.
 
 ## 🔒 Safety
@@ -135,6 +147,7 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 | `src/core/permission.ts` | Fail-closed permission gate with timeout |
 | `src/core/controller.ts` | Wires one pet together, plus relay runs; Electron-free |
 | `src/core/race.ts` | Race referee |
+| `src/core/ambient.ts` | Ambient life: decides who strolls, chats or says hi next |
 | `src/core/skins.ts` | Skin loading: recolors, picture folders, Codex pet packs (v1 and v2) |
 | `src/core/look.ts` | v2 look-around: cursor angle → one of 16 frames |
 | `pets/` | Bundled pet packs: Hikari and Nozomi, illustrated and pixel |
@@ -147,8 +160,8 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 ## Tests
 
 ```bash
-npm test          # 112 unit + integration tests
-npm run smoke     # real Electron app: every pose, all skin types, Hikari & Nozomi with look-around, 150% size, TTS, relay, a two-pet race (21 checks, screenshots in smoke-out/)
+npm test          # 123 unit + integration tests
+npm run smoke     # real Electron app: every pose, all skin types, Hikari & Nozomi with look-around, 150% size, TTS, relay, a two-pet race, ambient strolls and chat (30 checks, screenshots in smoke-out/)
 ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # drives a real agent in a temp dir: one turn + a two-leg relay (uses quota)
 ```
 
@@ -156,6 +169,7 @@ ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # drives a real agent in a tem
 
 - [acpx](https://github.com/openclaw/acpx): ACP runtime
 - [qq-slime-pet](https://github.com/DTSFO/qq-slime-pet): zero-asset canvas pixel sprites and the click-through hit-test trick
+- [Shimeji](https://kilkakon.com/shimeji/): the idea of desktop pets that wander and live on their own
 - [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet): the Codex pet v2 contract and `validate_atlas.py`
 - [OpenPet](https://github.com/dengyie/OpenPet): the Codex pet pack layout
 - [codex-has-a-pet-too](https://github.com/ChenxiChu001/codex-has-a-pet-too), [miku-on-desktop](https://github.com/thunguo/miku-on-desktop): other agent pets that inspired this one

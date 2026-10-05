@@ -90,6 +90,7 @@ body.images #sign { bottom: 282px; }
 
 #bubble {
   position: absolute;
+  z-index: 10;
   bottom: 196px;
   max-width: 260px;
   padding: 8px 12px;
@@ -120,6 +121,7 @@ body.images #sign { bottom: 282px; }
 
 #sign {
   position: absolute;
+  z-index: 10;
   bottom: 192px;
   width: 290px;
   padding: 10px 12px;
@@ -147,7 +149,15 @@ body.images #sign { bottom: 282px; }
 .sign-row button:active { transform: translate(2px, 2px); box-shadow: none; }
 #sign-timer { margin-left: auto; color: #888; font-variant-numeric: tabular-nums; }
 
+/* Floats over the pet's feet instead of taking a row in the layout, so
+   showing it on hover never pushes the pet up into the speech bubble. */
 #stats {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
   display: grid;
   grid-template-columns: auto auto;
   gap: 2px 10px;
@@ -161,7 +171,7 @@ body.images #sign { bottom: 282px; }
 #stats meter { width: 60px; height: 8px; }
 #lv { grid-column: 1 / -1; font-weight: 700; }
 
-#feed { width: 290px; margin-top: 6px; }
+#feed { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); z-index: 11; width: 290px; }
 #feed-input {
   width: 100%;
   font: inherit;
@@ -189,6 +199,12 @@ body.images #sign { bottom: 282px; }
 #diary-list li { padding: 3px 0; border-bottom: 1px dashed #eee3c9; }
 
 @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* Ambient strolls: a bouncy walk, facing the direction of travel. Codex
+   packs use their own walk rows instead, so they are never mirrored. */
+#art.walking { animation: walk-bob 0.32s ease-in-out infinite alternate; }
+#art.face-left:not(.atlas) #pet-img,
+#art.face-left:not(.atlas) #pet { transform: scaleX(-1); }
+@keyframes walk-bob { from { transform: translateY(0) rotate(-2deg); } to { transform: translateY(-5px) rotate(2deg); } }
 @keyframes hop { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 @keyframes jitter { from { transform: translateX(-1px); } to { transform: translateX(1px); } }
 @keyframes sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }

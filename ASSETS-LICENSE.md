@@ -10,7 +10,7 @@ The illustrations and pixel art in `pets/hikari*/`, `pets/nozomi*/` and `docs/pe
 
 ---
 
-`pets/hikari*/`、`pets/nozomi*/` 和 `docs/pets/` 裡的插畫與像素圖,是《蔚藍檔案》角色橘光(Hikari)與橘望(Nozomi)的**二創同人圖**。角色與設計的權利屬於 NEXON Games Co., Ltd. 與 Yostar,本專案與他們沒有任何關係,也沒有得到他們的背書。
+`pets/hikari*/`、`pets/nozomi*/` 和 `docs/pets/` 裡的插畫與像素圖,是《蔚藍檔案》角色橘ヒカリ(Hikari)與橘ノゾミ(Nozomi)的**二創同人圖**。角色與設計的權利屬於 NEXON Games Co., Ltd. 與 Yostar,本專案與他們沒有任何關係,也沒有得到他們的背書。
 
 - `LICENSE` 的 MIT 授權只涵蓋**程式碼**(包含 `scripts/pets/draw_twins.py` 和 `draw_twins_hd.py`),不涵蓋角色本身。
 - 這些同人 sprite 可以在**非商業**用途下使用、分享、修改,請註明出處為本 repo。不要拿去販售或用在商業產品。

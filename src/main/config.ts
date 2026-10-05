@@ -26,6 +26,8 @@ export type PetConfig = {
   alwaysOnTop: boolean;
   /** Read the speech bubbles out loud. */
   tts: boolean;
+  /** Idle pets stroll around, chat with each other and greet you. */
+  wander: boolean;
 };
 
 export const SCALES = [0.75, 1, 1.25, 1.5, 2] as const;
@@ -42,7 +44,7 @@ export const saveFileFor = (pet: PetProfile, index: number) =>
   join(petHome(), index === 0 ? "save.json" : `save-${pet.id}.json`);
 
 // The first two pets are the Tachibana twins; after that, recolored chicks.
-const NAMES = ["光", "望", "小黃", "小白", "小綠", "小粉", "小黑"];
+const NAMES = ["ヒカリ", "ノゾミ", "小黃", "小白", "小綠", "小粉", "小黑"];
 const SKINS = ["hikari", "nozomi", "chick", "snow", "mint", "sakura", "night"];
 
 export function newPetProfile(existing: PetProfile[], agent = existing[0]?.agent ?? "claude"): PetProfile {
@@ -64,6 +66,7 @@ const defaults = (): PetConfig => ({
   scale: 1,
   alwaysOnTop: true,
   tts: false,
+  wander: true,
 });
 
 /** Accepts the v0.1 single-pet shape ({ agent, workspace }) too. */
@@ -84,6 +87,7 @@ export function normalizeConfig(raw: Record<string, unknown>): PetConfig {
     scale: (SCALES as readonly number[]).includes(scale) ? scale : base.scale,
     alwaysOnTop: raw.alwaysOnTop !== false,
     tts: raw.tts === true,
+    wander: raw.wander !== false,
   };
 }
 

@@ -2,13 +2,13 @@
 
 [English](README.md) | **繁體中文**
 
-住在桌面上的寵物,其實是一個 [ACP](https://agentclientprotocol.com) coding agent(Claude Code、Codex、Gemini…)的擬人化儀表板。牠不聊天、也不靠讀 log 猜——牠直接吃 agent 真實的 `session/update` 事件流,事件發生的當下就演給你看。預設的寵物是《蔚藍檔案》的光和望([見下方](#光與望));另外還有程式畫的小雞,任何 Codex 角色包也都能用。
+住在桌面上的寵物,其實是一個 [ACP](https://agentclientprotocol.com) coding agent(Claude Code、Codex、Gemini…)的擬人化儀表板。牠不聊天、也不靠讀 log 猜——牠直接吃 agent 真實的 `session/update` 事件流,事件發生的當下就演給你看。預設的寵物是《蔚藍檔案》的ヒカリ和ノゾミ([見下方](#ヒカリ與ノゾミ));另外還有程式畫的小雞,任何 Codex 角色包也都能用。
 
 <p align="center">
-  <img src="docs/pets/hikari.gif" width="192" height="208" alt="光 Hikari">
-  <img src="docs/pets/nozomi.gif" width="192" height="208" alt="望 Nozomi">
+  <img src="docs/pets/hikari.gif" width="192" height="208" alt="ヒカリ Hikari">
+  <img src="docs/pets/nozomi.gif" width="192" height="208" alt="ノゾミ Nozomi">
 </p>
-<p align="center"><img src="docs/showcase.png" width="100%" alt="光和望的每個動作,插畫版與像素版"></p>
+<p align="center"><img src="docs/showcase.png" width="100%" alt="ヒカリ和ノゾミ的每個動作,插畫版與像素版"></p>
 
 內建的小雞:
 
@@ -31,9 +31,9 @@
 
 ![features](docs/features.png)
 
-## 光與望
+## ヒカリ與ノゾミ
 
-預設的兩隻寵物是《蔚藍檔案》的橘家雙胞胎:**光(Hikari)**淡定、會在帽簷敬禮;**望(Nozomi)**綁側馬尾、露虎牙笑。兩隻都完全用程式畫出來,沒有用任何生圖工具,而且各有兩種畫風,可以在右鍵 → 外表切換:
+預設的兩隻寵物是《蔚藍檔案》的橘家雙胞胎:**ヒカリ(Hikari)**淡定、會在帽簷敬禮;**ノゾミ(Nozomi)**綁側馬尾、露虎牙笑。兩隻都完全用程式畫出來,沒有用任何生圖工具,而且各有兩種畫風,可以在右鍵 → 外表切換:
 
 - **插畫風**(`hikari`、`nozomi`,預設):平滑的 Q 版插畫。`scripts/pets/draw_twins_hd.py` 先用 4 倍解析度畫每一張,再縮小去鋸齒,最後加上貼紙描邊。
 - **像素風**(`hikari-pixel`、`nozomi-pixel`):`scripts/pets/draw_twins.py` 畫的 48×52 像素圖放大 4 倍,顯示時用銳利的最近鄰縮放。
@@ -55,7 +55,7 @@ npm start         # 正式版
 ```
 
 - **單擊**小雞摸摸牠,**雙擊**餵任務,**拖曳**移動位置。
-- **右鍵**(或托盤圖示)開選單:示範、外表、日記、睡覺、新增寵物、比賽、大小、置頂、唸出台詞、離開。
+- **右鍵**(或托盤圖示)開選單:示範、外表、日記、睡覺、新增寵物、比賽、大小、置頂、唸出台詞、自由走動、離開。
 - 任務框可以輸入:
 
 | 輸入 | 會發生什麼 |
@@ -68,11 +68,22 @@ npm start         # 正式版
 
 選單 →「**新增一隻寵物**」會在桌面多放一隻。每隻都有自己的 agent、workspace、外表和存檔。選單 →「**比賽**」把同一個任務同時丟給所有閒著的寵物,最先完成的拿 🏆 和 15 點額外 XP,其他的生悶氣。想讓不同 agent 互相比(Claude vs Codex),就在設定檔裡給每隻填不同的 `agent`。
 
+## 在桌面上生活
+
+像經典的 [Shimeji](https://kilkakon.com/shimeji/) 一樣,你在忙別的事時,寵物不會只是站著:
+
+- 沿著螢幕底部**走來走去**,高度維持在你放的位置。
+- 兩隻都閒著時,會**走到對方旁邊聊天**(ヒカリ和ノゾミ有專屬的雙胞胎對話)。
+- 滑鼠靠近時,偶爾會**轉向你打招呼**。
+- 偶爾會**自言自語**。
+
+工作中、舉牌問你時、被拖曳時,以及你把她放好之後的 1 分鐘內,她都會乖乖待著;滑鼠停在她身上時也不會走開。右鍵 →「**自由走動・互動**」可以整個關掉(設定檔的 `"wander": false`)。
+
 ## 外表(換膚)
 
 選單 →「**外表**」可以換寵物的樣子,共三種:
 
-1. **內建外表**:光和望(見上方),加上程式畫的小雞五種配色:小黃雞、雪白鴨、薄荷史萊姆、櫻花雞、夜貓。小雞版附有手畫道具(書、鍵盤、榔頭…)。
+1. **內建外表**:ヒカリ和ノゾミ(見上方),加上程式畫的小雞五種配色:小黃雞、雪白鴨、薄荷史萊姆、櫻花雞、夜貓。小雞版附有手畫道具(書、鍵盤、榔頭…)。
 2. **自己的圖片**:在 `~/.acp-pet/skins/` 開一個資料夾(選單 → 外表 →「打開外表資料夾」),每個動作放一張圖。PNG、GIF(會動的也可以)、WebP、JPG 都行。只有 `idle` 是必要的,缺的動作會自動退回:
 
    ```
@@ -97,17 +108,18 @@ npm start         # 正式版
 ```json
 {
   "pets": [
-    { "id": "pet1", "name": "光", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "hikari" }
+    { "id": "pet1", "name": "ヒカリ", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "hikari" }
   ],
   "permissionTimeoutSec": 60,
   "scale": 1,
   "alwaysOnTop": true,
-  "tts": false
+  "tts": false,
+  "wander": true
 }
 ```
 
 - `agent` 填任何 [acpx 支援的 agent 名稱](https://github.com/openclaw/acpx),該 agent 要先裝好並登入。用 `claude` 的話,acpx 會自動抓 `@agentclientprotocol/claude-agent-acp` adapter。
-- `scale`(75%–200%)、`alwaysOnTop`(永遠在最上層)、`tts`(唸出台詞)也都可以從選單改。
+- `scale`(75%–200%)、`alwaysOnTop`(永遠在最上層)、`tts`(唸出台詞)、`wander`(自己走動、聊天)也都可以從選單改。
 - v0.1 的設定檔(`{ "agent", "workspace" }`)會自動轉成新格式。
 
 ## 🔒 安全
@@ -135,10 +147,11 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 | `src/core/permission.ts` | 預設拒絕、有超時的權限關卡 |
 | `src/core/controller.ts` | 把一隻寵物串起來,也負責接力賽;不依賴 Electron |
 | `src/core/race.ts` | 比賽裁判 |
+| `src/core/ambient.ts` | 桌面生活:決定下一步誰散步、誰聊天、誰跟你打招呼 |
 | `src/core/skins.ts` | 載入外表:配色、圖片資料夾、Codex 角色包(v1 和 v2) |
 | `src/core/look.ts` | v2 看游標:游標角度 → 16 張畫面中的一張 |
-| `pets/` | 內建角色包:光和望,插畫版與像素版 |
-| `scripts/pets/draw_twins_hd.py` | 畫插畫版光和望的 spritesheet |
+| `pets/` | 內建角色包:ヒカリ和ノゾミ,插畫版與像素版 |
+| `scripts/pets/draw_twins_hd.py` | 畫插畫版ヒカリ和ノゾミ的 spritesheet |
 | `scripts/pets/draw_twins.py` | 畫像素版,也定義兩種畫風共用的動畫列 |
 | `src/core/fake-source.ts` | `/demo`、`/fail` 的腳本 |
 | `src/main/` | Electron:每隻寵物一個透明、可點穿的視窗,托盤、選單、設定 |
@@ -147,8 +160,8 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 ## 測試
 
 ```bash
-npm test          # 112 個單元 + 整合測試
-npm run smoke     # 真的開 Electron:所有動作、所有外表、光和望加上看游標、150% 大小、TTS、接力賽、兩隻比賽(21 項檢查,截圖存在 smoke-out/)
+npm test          # 123 個單元 + 整合測試
+npm run smoke     # 真的開 Electron:所有動作、所有外表、ヒカリ和ノゾミ加上看游標、150% 大小、TTS、接力賽、兩隻比賽、自己散步聊天(30 項檢查,截圖存在 smoke-out/)
 ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # 在暫存資料夾驅動真的 agent:一次任務 + 兩棒接力(會用到額度)
 ```
 
@@ -156,10 +169,11 @@ ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # 在暫存資料夾驅動真�
 
 - [acpx](https://github.com/openclaw/acpx):ACP runtime
 - [qq-slime-pet](https://github.com/DTSFO/qq-slime-pet):零素材 canvas 像素 sprite、點穿判定的做法
+- [Shimeji](https://kilkakon.com/shimeji/):會自己在桌面上走動、生活的桌寵始祖
 - [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet):Codex pet v2 規格與 `validate_atlas.py`
 - [OpenPet](https://github.com/dengyie/OpenPet):Codex 角色包的格式
 - [codex-has-a-pet-too](https://github.com/ChenxiChu001/codex-has-a-pet-too)、[miku-on-desktop](https://github.com/thunguo/miku-on-desktop):啟發這個專案的其他 agent 桌寵
 
 ## 授權
 
-程式碼:MIT。光和望的 sprite 是蔚藍檔案的同人二創,僅限非商業使用,詳見 [ASSETS-LICENSE.md](ASSETS-LICENSE.md)。
+程式碼:MIT。ヒカリ和ノゾミ的 sprite 是蔚藍檔案的同人二創,僅限非商業使用,詳見 [ASSETS-LICENSE.md](ASSETS-LICENSE.md)。
