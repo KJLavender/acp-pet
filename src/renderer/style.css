@@ -1,0 +1,184 @@
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  font: 13px/1.4 "Microsoft JhengHei UI", "PingFang TC", system-ui, sans-serif;
+  color: #2b2b2b;
+}
+#stage {
+  position: relative;
+  width: 320px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+}
+.hidden { display: none !important; }
+
+#art {
+  position: relative;
+  width: 200px;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: grab;
+}
+#pet {
+  width: 200px;
+  height: 180px;
+  image-rendering: pixelated;
+}
+#art.atlas #pet { width: auto; height: 180px; image-rendering: auto; }
+#pet-img { max-width: 200px; max-height: 180px; object-fit: contain; pointer-events: none; }
+#pet-img.pixelated { image-rendering: pixelated; }
+
+/* Image skins don't have hand-drawn props, so poses get motion + a badge. */
+#art.pose-happy #pet-img, #art.pose-levelup #pet-img, #art.pose-tugging #pet-img { animation: hop 0.35s ease-in-out infinite alternate; }
+#art.pose-typing #pet-img, #art.pose-hammering #pet-img { animation: jitter 0.15s steps(2) infinite; }
+#art.pose-thinking #pet-img, #art.pose-reading #pet-img, #art.pose-peeking #pet-img { animation: sway 1.2s ease-in-out infinite alternate; }
+#art.pose-sick #pet-img { filter: grayscale(0.8) brightness(0.9); }
+#art.pose-sleeping #pet-img, #art.pose-sleeping.atlas #pet { filter: brightness(0.8); }
+#art.pose-sulking #pet-img { transform: scaleX(-1); filter: saturate(0.6); }
+#badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 26px;
+  animation: pop 0.2s ease-out;
+  filter: drop-shadow(1px 1px 0 #fff);
+}
+#progress {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border: 2px solid #3b2a1a;
+  border-radius: 10px;
+  background: #ffe066;
+}
+#name-tag {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #3b2a1a;
+  background: rgba(255, 253, 245, 0.8);
+  padding: 0 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+#name-tag:empty { display: none; }
+
+#bubble {
+  position: absolute;
+  bottom: 196px;
+  max-width: 260px;
+  padding: 8px 12px;
+  background: #fffdf5;
+  border: 2px solid #3b2a1a;
+  border-radius: 12px;
+  box-shadow: 2px 2px 0 #3b2a1a;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: pop 0.15s ease-out;
+}
+#bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  border: 8px solid transparent;
+  border-top-color: #3b2a1a;
+  border-bottom: 0;
+  transform: translateX(-50%);
+}
+#bubble code, #sign code {
+  font-family: Consolas, monospace;
+  background: #f1ece0;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+#sign {
+  position: absolute;
+  bottom: 192px;
+  width: 290px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 3px solid #2b2b2b;
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 #2b2b2b;
+  animation: wiggle 0.4s ease-in-out infinite alternate;
+}
+.sign-title { font-weight: 700; margin-bottom: 4px; }
+#sign-what { margin-bottom: 4px; }
+#sign-detail { display: block; max-height: 60px; overflow: auto; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+.sign-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.sign-row button {
+  font: inherit;
+  font-weight: 700;
+  padding: 4px 16px;
+  border: 2px solid #2b2b2b;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #2b2b2b;
+}
+#allow { background: #b6f2a6; }
+#reject { background: #ffc2c2; }
+.sign-row button:active { transform: translate(2px, 2px); box-shadow: none; }
+#sign-timer { margin-left: auto; color: #888; font-variant-numeric: tabular-nums; }
+
+#stats {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 10px;
+  font-size: 11px;
+  background: rgba(255, 253, 245, 0.92);
+  border: 1px solid #3b2a1a;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+#stats label { display: flex; align-items: center; gap: 4px; }
+#stats meter { width: 60px; height: 8px; }
+#lv { grid-column: 1 / -1; font-weight: 700; }
+
+#feed { width: 290px; margin-top: 6px; }
+#feed-input {
+  width: 100%;
+  font: inherit;
+  padding: 6px 10px;
+  border: 2px solid #3b2a1a;
+  border-radius: 8px;
+  outline: none;
+  background: #fffdf5;
+}
+
+#diary {
+  position: absolute;
+  inset: 8px 8px auto 8px;
+  max-height: 210px;
+  background: #fffdf5;
+  border: 2px solid #3b2a1a;
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 #3b2a1a;
+  display: flex;
+  flex-direction: column;
+}
+.diary-head { font-weight: 700; padding: 6px 10px; border-bottom: 1px solid #e5dcc5; display: flex; }
+.diary-head button { margin-left: auto; border: 0; background: none; font-size: 16px; cursor: pointer; }
+#diary-list { list-style: none; margin: 0; padding: 4px 10px; overflow: auto; font-size: 12px; }
+#diary-list li { padding: 3px 0; border-bottom: 1px dashed #eee3c9; }
+
+@keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes hop { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+@keyframes jitter { from { transform: translateX(-1px); } to { transform: translateX(1px); } }
+@keyframes sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+@keyframes wiggle { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg); } }
