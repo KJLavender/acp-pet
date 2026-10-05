@@ -116,6 +116,9 @@ export class PetWindow {
   private initialPosition(saved: SaveData["window"], scale: number) {
     const w = Math.round(WIN_W * scale);
     const h = Math.round(WIN_H * scale);
+    // Smoke runs render for real (capturePage needs it) but far off-screen,
+    // so they don't flash pets across the user's desktop.
+    if (process.argv.includes("--smoke")) return { x: -20000 - this.index * w, y: -20000 };
     if (saved) {
       const visible = screen.getAllDisplays().some((d) => {
         const b = d.bounds;
