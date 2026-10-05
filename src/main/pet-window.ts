@@ -200,8 +200,11 @@ export class PetWindow {
    * v2 pet packs can look around: send which of the 16 look frames points at
    * the mouse, or null when the cursor is right on top of the pet.
    */
+  /** Smoke tests turn this off so the real mouse can't race their scripted looks. */
+  trackCursor = true;
+
   private updateLook() {
-    if (this.win.isDestroyed() || this.skin.type !== "atlas" || !this.skin.look) return;
+    if (!this.trackCursor || this.win.isDestroyed() || this.skin.type !== "atlas" || !this.skin.look) return;
     const b = this.win.getBounds();
     const c = screen.getCursorScreenPoint();
     // the pet's face sits a bit below the middle of the window

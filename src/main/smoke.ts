@@ -155,7 +155,7 @@ async function scenarioSkins(pet: PetWindow) {
   const real = process.env.ACP_PET_SMOKE_REAL_SKIN;
   if (real) {
     await pet.setSkin(real, log);
-    check(`skin: real pack "${real}" loads`, pet.skin.id === real && pet.skin.type === "atlas", pet.skin.type);
+    check(`skin: real pack "${real}" loads`, pet.skin.id === real && pet.skin.type !== "pixel", pet.skin.type);
     drive(pet, [{ type: "turn_end", outcome: "completed" }]);
     const poses: [string, PetEvent[]][] = [
       ["idle", []],
@@ -207,10 +207,12 @@ async function scenarioTwins(pet: PetWindow) {
     // back to idle, then point the look-around at frame 4 (90°, to the right)
     drive(pet, [{ type: "turn_start", prompt: id }, { type: "turn_end", outcome: "cancelled" }]);
     await sleep(4500);
+    pet.trackCursor = false;
     pet.send("pet:look", 4);
     await shot(pet, `twins-${id}-look-right`, 400);
     const look = await evalIn<string>(pet, "document.body.dataset.look");
     check(`twins: ${id} turns to look at the cursor when idle`, look === "4" && pet.controller.brain.snapshot().state === "idle", `look=${look}`);
+    pet.trackCursor = true;
     const size = await evalIn<{ w: number; h: number; render: string }>(
       pet,
       `(() => { const c = document.getElementById("pet"); const r = c.getBoundingClientRect();

@@ -3,3 +3,4 @@ dist/
 smoke-out/
 *.log
 __pycache__/
+docs/art-skin-preview.png
