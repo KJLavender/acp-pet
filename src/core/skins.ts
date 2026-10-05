@@ -25,6 +25,8 @@ export type Skin =
       cellWidth: number;
       cellHeight: number;
       rows: Record<PetState, AtlasRow>;
+      /** v2 packs (spriteVersionNumber 2) have 16 look-direction frames in rows 9–10. */
+      look: boolean;
     };
 
 export type SkinInfo = { id: string; name: string; type: Skin["type"] };
@@ -81,18 +83,18 @@ const CODEX_ROWS = {
 
 export const CODEX_POSE_ROWS: Record<PetState, AtlasRow> = {
   idle: CODEX_ROWS.idle,
-  bored: CODEX_ROWS.waiting,
+  bored: CODEX_ROWS.waving, // "come play with me"
   sleeping: { row: 0, durations: [900, 900] }, // slowed-down idle
   thinking: CODEX_ROWS.review,
   reading: CODEX_ROWS.review,
   typing: CODEX_ROWS.running,
   hammering: CODEX_ROWS.runningRight,
   peeking: CODEX_ROWS.runningLeft,
-  tugging: CODEX_ROWS.waving,
+  tugging: CODEX_ROWS.waiting, // the contract's "asking for approval" row
   happy: CODEX_ROWS.jumping,
   levelup: CODEX_ROWS.jumping,
   sick: CODEX_ROWS.failed,
-  sulking: CODEX_ROWS.waiting,
+  sulking: CODEX_ROWS.failed,
 };
 
 const IMAGE_EXT: Record<string, string> = {
@@ -140,6 +142,7 @@ export async function loadFolderSkin(dir: string, id: string): Promise<Skin> {
       cellWidth: CODEX_ATLAS.cellWidth,
       cellHeight: CODEX_ATLAS.cellHeight,
       rows: CODEX_POSE_ROWS,
+      look: pet.spriteVersionNumber === 2,
     };
   }
 
@@ -171,17 +174,28 @@ export async function loadFolderSkin(dir: string, id: string): Promise<Skin> {
   };
 }
 
-/** Built-in recolors plus every folder in skinsDir that looks like a skin. */
-export async function listSkins(skinsDir: string): Promise<SkinInfo[]> {
+const asList = (dirs: string | string[]) => (Array.isArray(dirs) ? dirs : [dirs]);
+
+/**
+ * Built-in recolors plus every folder that looks like a skin. `dirs` is
+ * searched in order (bundled pets first, then ~/.acp-pet/skins); the first
+ * folder with a given id wins.
+ */
+export async function listSkins(dirs: string | string[]): Promise<SkinInfo[]> {
   const list: SkinInfo[] = Object.entries(PIXEL_SKINS).map(([id, s]) => ({ id, name: s.name, type: "pixel" }));
+  for (const skinsDir of asList(dirs)) await listDir(skinsDir, list);
+  return list;
+}
+
+async function listDir(skinsDir: string, list: SkinInfo[]): Promise<void> {
   let entries: string[] = [];
   try {
     entries = (await readdir(skinsDir, { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name);
   } catch {
-    return list;
+    return;
   }
   for (const id of entries.sort()) {
-    if (PIXEL_SKINS[id]) continue;
+    if (PIXEL_SKINS[id] || list.some((s) => s.id === id)) continue;
     const dir = join(skinsDir, id);
     const pet = await readJson(join(dir, "pet.json"));
     if (pet && typeof pet.spritesheetPath === "string") {
@@ -194,15 +208,18 @@ export async function listSkins(skinsDir: string): Promise<SkinInfo[]> {
       list.push({ id, name: typeof meta?.name === "string" ? meta.name : id, type: "images" });
     }
   }
-  return list;
 }
 
 /** Never throws: an unknown or broken skin falls back to the default chick. */
-export async function loadSkin(skinsDir: string, id: string, onError?: (msg: string) => void): Promise<Skin> {
+export async function loadSkin(dirs: string | string[], id: string, onError?: (msg: string) => void): Promise<Skin> {
   const pixel = PIXEL_SKINS[id];
   if (pixel) return { type: "pixel", id, name: pixel.name, palette: pixel.palette };
   try {
-    return await loadFolderSkin(insideDir(skinsDir, id), id);
+    const candidates = asList(dirs).map((d) => insideDir(d, id));
+    const found = [];
+    for (const dir of candidates) if (await stat(dir).then((s) => s.isDirectory(), () => false)) found.push(dir);
+    if (!found.length) throw new Error(`no skin folder named "${id}"`);
+    return await loadFolderSkin(found[0]!, id);
   } catch (err) {
     onError?.(`skin "${id}" failed to load: ${err instanceof Error ? err.message : err}`);
     const chick = PIXEL_SKINS[DEFAULT_SKIN]!;

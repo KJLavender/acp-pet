@@ -15,6 +15,7 @@ const api = {
   onSnapshot: (cb: (s: PetSnapshot) => void) => on("pet:snapshot", cb),
   onSkin: (cb: (s: Skin) => void) => on("pet:skin", cb),
   onSettings: (cb: (s: PetSettings) => void) => on("pet:settings", cb),
+  onLook: (cb: (lookIndex: number | null) => void) => on("pet:look", cb),
   onOpenInput: (cb: (mode: InputMode) => void) => on("pet:open-input", cb),
   onShowDiary: (cb: (d: DiaryEntry[]) => void) => on("pet:show-diary", cb),
   prompt: (text: string, mode: InputMode = "feed") => ipcRenderer.send("pet:prompt", text, mode),

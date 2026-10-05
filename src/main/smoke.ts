@@ -151,10 +151,67 @@ async function scenarioSkins(pet: PetWindow) {
   await shot(pet, "skin-codex-reading");
   check("skin: Codex pet atlas draws frames", alpha > 0 && (await evalIn<string>(pet, "document.body.dataset.skin")) === "atlas:test-codex", `alpha=${alpha}`);
 
+  // ACP_PET_SMOKE_REAL_SKIN=<folder in skins/>: screenshot a real pet pack in every pose.
+  const real = process.env.ACP_PET_SMOKE_REAL_SKIN;
+  if (real) {
+    await pet.setSkin(real, log);
+    check(`skin: real pack "${real}" loads`, pet.skin.id === real && pet.skin.type === "atlas", pet.skin.type);
+    drive(pet, [{ type: "turn_end", outcome: "completed" }]);
+    const poses: [string, PetEvent[]][] = [
+      ["idle", []],
+      ["reading", [{ type: "turn_start", prompt: "real" }, { type: "tool", id: "r1", kind: "read", title: "Read a.ts", paths: ["a.ts"] }]],
+      ["typing", [{ type: "tool", id: "r2", kind: "edit", title: "Edit a.ts", paths: ["a.ts"] }]],
+      ["hammering", [{ type: "tool", id: "r3", kind: "execute", title: "npm test" }]],
+      ["sick", [{ type: "turn_end", outcome: "failed" }]],
+    ];
+    await shot(pet, `real-${real}-idle`, 900);
+    for (const [label, evs] of poses.slice(1)) {
+      drive(pet, evs);
+      await shot(pet, `real-${real}-${label}`, 900);
+    }
+    pet.controller.brain.askPermission({ id: "real-sign", kind: "execute", title: "npm test", detail: "$ npm test", deadline: Date.now() + 60_000 });
+    pet.controller.tick();
+    await shot(pet, `real-${real}-tugging`, 900);
+    pet.controller.brain.resolvePermission("real-sign", "allow", Date.now());
+  }
+
   await pet.setSkin("does-not-exist", log);
   check("skin: unknown skin falls back to the chick", pet.skin.id === "chick");
 
   drive(pet, [{ type: "turn_end", outcome: "completed" }]);
+  await pet.setSkin("chick", log);
+}
+
+/** The bundled Blue Archive twins: every agent pose plus the v2 look-around. */
+async function scenarioTwins(pet: PetWindow) {
+  for (const id of ["hikari", "nozomi"]) {
+    await pet.setSkin(id, log);
+    check(`twins: ${id} loads from the bundled pets folder as v2`, pet.skin.id === id && pet.skin.type === "atlas" && pet.skin.look);
+    const steps: [string, () => void][] = [
+      ["reading", () => drive(pet, [{ type: "turn_start", prompt: id }, { type: "tool", id: `${id}-r`, kind: "read", title: "Read a.ts", paths: ["a.ts"] }])],
+      ["typing", () => drive(pet, [{ type: "tool", id: `${id}-e`, kind: "edit", title: "Edit a.ts", paths: ["a.ts"] }])],
+      ["tugging", () => {
+        pet.controller.brain.askPermission({ id: `${id}-sign`, kind: "execute", title: "npm test", detail: "$ npm test", deadline: Date.now() + 60_000 });
+        pet.controller.tick();
+      }],
+      ["happy", () => {
+        pet.controller.brain.resolvePermission(`${id}-sign`, "allow", Date.now());
+        drive(pet, [{ type: "turn_end", outcome: "completed" }]);
+      }],
+      ["sick", () => drive(pet, [{ type: "turn_start", prompt: id }, { type: "turn_end", outcome: "failed" }])],
+    ];
+    for (const [label, step] of steps) {
+      step();
+      await shot(pet, `twins-${id}-${label}`, 700);
+    }
+    // back to idle, then point the look-around at frame 4 (90°, to the right)
+    drive(pet, [{ type: "turn_start", prompt: id }, { type: "turn_end", outcome: "cancelled" }]);
+    await sleep(4500);
+    pet.send("pet:look", 4);
+    await shot(pet, `twins-${id}-look-right`, 400);
+    const look = await evalIn<string>(pet, "document.body.dataset.look");
+    check(`twins: ${id} turns to look at the cursor when idle`, look === "4" && pet.controller.brain.snapshot().state === "idle", `look=${look}`);
+  }
   await pet.setSkin("chick", log);
 }
 
@@ -231,6 +288,7 @@ export async function runSmoke() {
   const scenarios: [string, () => Promise<void>][] = [
     ["poses", () => scenarioPoses(pet)],
     ["skins", () => scenarioSkins(pet)],
+    ["twins", () => scenarioTwins(pet)],
     ["scale", () => scenarioScale(pet)],
     ["tts", () => scenarioTts(pet)],
     ["relay", () => scenarioRelay(pet)],

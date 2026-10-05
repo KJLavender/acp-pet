@@ -2,9 +2,11 @@
 
 **English** | [繁體中文](README.zh-TW.md)
 
-A pixel chick that lives on your desktop and is secretly a dashboard for an [ACP](https://agentclientprotocol.com) coding agent (Claude Code, Codex, Gemini…). It doesn't chat and it doesn't guess from logs: it consumes the agent's real `session/update` event stream and acts out each event as it happens.
+A pixel pet that lives on your desktop and is secretly a dashboard for an [ACP](https://agentclientprotocol.com) coding agent (Claude Code, Codex, Gemini…). It doesn't chat and it doesn't guess from logs: it consumes the agent's real `session/update` event stream and acts out each event as it happens. Out of the box the pets are Hikari and Nozomi from *Blue Archive* ([below](#meet-hikari--nozomi)); there's also a code-drawn chick, and any Codex pet pack works.
 
-![poses](docs/poses.png)
+| Hikari | Nozomi | Chick |
+|:---:|:---:|:---:|
+| ![Hikari](docs/pets/hikari.gif) | ![Nozomi](docs/pets/nozomi.gif) | ![poses](docs/poses.png) |
 
 | What the agent is doing | What the chick does |
 |---|---|
@@ -22,6 +24,16 @@ A pixel chick that lives on your desktop and is secretly a dashboard for an [ACP
 On top of that there's a small tamagotchi layer. **Energy** drains with every tool call and refills while it sleeps. **Boredom** rises while it's idle, and once it's high enough the chick comes over to ask for a task. Every finished task earns **XP**, and a **streak** of successes adds a bonus. The built-in chick grows a comb at Lv.3 and a crown at Lv.5. Everything is saved to `~/.acp-pet/`.
 
 ![features](docs/features.png)
+
+## Meet Hikari & Nozomi
+
+The two default pets are the Tachibana twins from *Blue Archive*: **Hikari** (calm, deadpan, salutes at the cap) and **Nozomi** (side ponytail, fang grin). They are hand-coded pixel art: `scripts/pets/draw_twins.py` draws every frame from code, with no image generator involved. The previews at the top play every animation row, then the look-around.
+
+- They are **Codex pet v2** packs (`pets/<id>/pet.json` + an 8×11 `spritesheet.webp`), the same format as [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet). Both pass that project's official `validate_atlas.py` with no errors.
+- v2 packs carry 16 look directions, so while idle the pet **turns to watch your mouse**.
+- They work in Codex too: `npm run pets:install-codex` copies them to `~/.codex/pets/`. Then pick one in Codex settings.
+- To redraw them after editing the script: `npm run pets:draw` (needs Python + Pillow).
+- They're fan art; see [ASSETS-LICENSE.md](ASSETS-LICENSE.md). The characters belong to NEXON Games / Yostar, and the sprites are for non-commercial use.
 
 ## Quick start
 
@@ -49,7 +61,7 @@ Menu → **Add a pet** puts another pet on the desktop. Each pet has its own age
 
 Menu → **Looks** switches a pet's appearance. There are three kinds:
 
-1. **Built-in recolors**: 小黃雞 (chick), 雪白鴨 (snow), 薄荷史萊姆 (mint), 櫻花雞 (sakura), 夜貓 (night). These are the code-drawn pixel art, with all the props (book, keyboard, hammer…).
+1. **Built-in looks**: Hikari and Nozomi (see above), plus the code-drawn chick in five colors: 小黃雞 (chick), 雪白鴨 (snow), 薄荷史萊姆 (mint), 櫻花雞 (sakura), 夜貓 (night). The chicks come with hand-drawn props (book, keyboard, hammer…).
 2. **Your own pictures**: make a folder in `~/.acp-pet/skins/` (Menu → Looks → *Open looks folder*) with one image per pose. PNG, GIF (animated is fine), WebP and JPG all work. Only `idle` is required; missing poses fall back automatically:
 
    ```
@@ -63,7 +75,7 @@ Menu → **Looks** switches a pet's appearance. There are three kinds:
    ```
 
    Picture skins don't have hand-drawn props, so the pet shows a badge (📖 ⌨️ 🔨 🪧 …) and moves (hops, shakes, sways) to say what it's doing.
-3. **Codex / OpenPet pet packs**: drop a pet pack folder (`pet.json` + an 8×9 spritesheet with 192×208 cells) into `~/.acp-pet/skins/`. It works as-is, so pets made for Codex or [OpenPet](https://github.com/dengyie/OpenPet) can be reused.
+3. **Codex pet packs**: drop a pet pack folder (`pet.json` + a spritesheet with 192×208 cells; v1 is 8×9, v2 is 8×11) into `~/.acp-pet/skins/`. It works as-is, so the hundreds of pets on [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet) or [OpenPet](https://github.com/dengyie/OpenPet) can be reused. v2 packs also look around at your mouse.
 
 The menu re-scans the folder each time it opens, so new skins show up without restarting. Images over 8 MB, and paths that point outside the skin folder, are refused.
 
@@ -74,7 +86,7 @@ On first launch the app writes `~/.acp-pet/config.json`:
 ```json
 {
   "pets": [
-    { "id": "pet1", "name": "小黃", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "chick" }
+    { "id": "pet1", "name": "光", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "hikari" }
   ],
   "permissionTimeoutSec": 60,
   "scale": 1,
@@ -112,7 +124,10 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 | `src/core/permission.ts` | Fail-closed permission gate with timeout |
 | `src/core/controller.ts` | Wires one pet together, plus relay runs; Electron-free |
 | `src/core/race.ts` | Race referee |
-| `src/core/skins.ts` | Skin loading: recolors, picture folders, Codex pet packs |
+| `src/core/skins.ts` | Skin loading: recolors, picture folders, Codex pet packs (v1 and v2) |
+| `src/core/look.ts` | v2 look-around: cursor angle → one of 16 frames |
+| `pets/` | Bundled pet packs: Hikari and Nozomi |
+| `scripts/pets/draw_twins.py` | Draws the Hikari and Nozomi sprite sheets from code |
 | `src/core/fake-source.ts` | Scripted turns for `/demo` and `/fail` |
 | `src/main/` | Electron: one transparent click-through window per pet, tray, menus, settings |
 | `src/renderer/` | Zero-asset pixel sprite, skin rendering, speech bubble, permission sign, TTS |
@@ -120,8 +135,8 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 ## Tests
 
 ```bash
-npm test          # 98 unit + integration tests
-npm run smoke     # real Electron app: every pose, all three skin types, 150% size, TTS, relay, a two-pet race (17 checks, screenshots in smoke-out/)
+npm test          # 112 unit + integration tests
+npm run smoke     # real Electron app: every pose, all skin types, Hikari & Nozomi with look-around, 150% size, TTS, relay, a two-pet race (21 checks, screenshots in smoke-out/)
 ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # drives a real agent in a temp dir: one turn + a two-leg relay (uses quota)
 ```
 
@@ -129,9 +144,10 @@ ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # drives a real agent in a tem
 
 - [acpx](https://github.com/openclaw/acpx): ACP runtime
 - [qq-slime-pet](https://github.com/DTSFO/qq-slime-pet): zero-asset canvas pixel sprites and the click-through hit-test trick
+- [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet): the Codex pet v2 contract and `validate_atlas.py`
 - [OpenPet](https://github.com/dengyie/OpenPet): the Codex pet pack layout
 - [codex-has-a-pet-too](https://github.com/ChenxiChu001/codex-has-a-pet-too), [miku-on-desktop](https://github.com/thunguo/miku-on-desktop): other agent pets that inspired this one
 
 ## License
 
-MIT
+Code: MIT. Hikari and Nozomi sprites are Blue Archive fan art for non-commercial use; see [ASSETS-LICENSE.md](ASSETS-LICENSE.md).

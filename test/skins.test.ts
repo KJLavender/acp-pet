@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { lookCell, lookIndex } from "../src/core/look.js";
 import { CODEX_POSE_ROWS, insideDir, listSkins, loadSkin, POSES } from "../src/core/skins.js";
 
 // 1×1 transparent PNG
@@ -101,5 +102,49 @@ describe("skins", () => {
 
   it("every pose maps to a Codex atlas row", () => {
     for (const pose of POSES) expect(CODEX_POSE_ROWS[pose].row).toBeLessThan(9);
+  });
+
+  it("v2 packs (spriteVersionNumber 2) get look-around; v1 packs don't", async () => {
+    const dir = await skinsDir({
+      v1: { "pet.json": JSON.stringify({ spritesheetPath: "s.webp" }), "s.webp": PNG },
+      v2: { "pet.json": JSON.stringify({ spriteVersionNumber: 2, spritesheetPath: "s.webp" }), "s.webp": PNG },
+    });
+    expect(await loadSkin(dir, "v1")).toMatchObject({ type: "atlas", look: false });
+    expect(await loadSkin(dir, "v2")).toMatchObject({ type: "atlas", look: true });
+  });
+
+  it("searches several folders in order; the first folder with the id wins", async () => {
+    const bundled = await skinsDir({ hikari: { "pet.json": JSON.stringify({ displayName: "Bundled", spritesheetPath: "s.webp" }), "s.webp": PNG } });
+    const user = await skinsDir({
+      hikari: { "pet.json": JSON.stringify({ displayName: "Mine", spritesheetPath: "s.webp" }), "s.webp": PNG },
+      cat: { "idle.png": PNG },
+    });
+    expect((await loadSkin([bundled, user], "hikari")).name).toBe("Bundled");
+    expect((await loadSkin([bundled, user], "cat")).type).toBe("images");
+    const list = await listSkins([bundled, user]);
+    expect(list.filter((s) => s.id === "hikari")).toEqual([{ id: "hikari", name: "Bundled", type: "atlas" }]);
+    expect(list.some((s) => s.id === "cat")).toBe(true);
+  });
+
+  it("the bundled Hikari and Nozomi packs load as v2", async () => {
+    const pets = join(__dirname, "..", "pets");
+    for (const id of ["hikari", "nozomi"]) {
+      expect(await loadSkin(pets, id)).toMatchObject({ type: "atlas", id, look: true });
+    }
+  });
+});
+
+describe("look directions", () => {
+  it.each([
+    [0, 0], [11, 0], [12, 1], [90, 4], [180, 8], [270, 12], [348, 15], [349, 0], [-90, 12], [720, 0],
+  ])("%i° → frame %i", (deg, idx) => {
+    expect(lookIndex(deg)).toBe(idx);
+  });
+
+  it("frames 0-7 live in row 9, 8-15 in row 10", () => {
+    expect(lookCell(0)).toEqual({ row: 9, col: 0 });
+    expect(lookCell(7)).toEqual({ row: 9, col: 7 });
+    expect(lookCell(8)).toEqual({ row: 10, col: 0 });
+    expect(lookCell(15)).toEqual({ row: 10, col: 7 });
   });
 });

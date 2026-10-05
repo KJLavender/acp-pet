@@ -2,9 +2,11 @@
 
 [English](README.md) | **繁體中文**
 
-住在桌面上的像素小雞,其實是一個 [ACP](https://agentclientprotocol.com) coding agent(Claude Code、Codex、Gemini…)的擬人化儀表板。牠不聊天、也不靠讀 log 猜——牠直接吃 agent 真實的 `session/update` 事件流,事件發生的當下就演給你看。
+住在桌面上的像素寵物,其實是一個 [ACP](https://agentclientprotocol.com) coding agent(Claude Code、Codex、Gemini…)的擬人化儀表板。牠不聊天、也不靠讀 log 猜——牠直接吃 agent 真實的 `session/update` 事件流,事件發生的當下就演給你看。預設的寵物是《蔚藍檔案》的光和望([見下方](#光與望));另外還有程式畫的小雞,任何 Codex 角色包也都能用。
 
-![poses](docs/poses.png)
+| 光 Hikari | 望 Nozomi | 小雞 |
+|:---:|:---:|:---:|
+| ![Hikari](docs/pets/hikari.gif) | ![Nozomi](docs/pets/nozomi.gif) | ![poses](docs/poses.png) |
 
 | agent 在做什麼 | 小雞在做什麼 |
 |---|---|
@@ -22,6 +24,16 @@
 上面再疊一層電子雞數值。**體力**每次 tool call 都會掉,睡覺時回復。**無聊值**閒置時上升,高到一定程度小雞會跑來討任務。每完成一個任務拿 **XP**,**連勝**有額外加成。內建小雞 Lv.3 長雞冠、Lv.5 戴皇冠。全部存在 `~/.acp-pet/`。
 
 ![features](docs/features.png)
+
+## 光與望
+
+預設的兩隻寵物是《蔚藍檔案》的橘家雙胞胎:**光(Hikari)**淡定、會在帽簷敬禮;**望(Nozomi)**綁側馬尾、露虎牙笑。她們是用程式手刻的像素圖:`scripts/pets/draw_twins.py` 一格一格畫出每一張,沒有用任何生圖工具。最上方的預覽動畫會依序播完每一列動作,最後是轉頭看四周。
+
+- 她們是 **Codex pet v2** 角色包(`pets/<id>/pet.json` + 8×11 格的 `spritesheet.webp`),跟 [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet) 同一個格式,也都通過該專案官方的 `validate_atlas.py`,沒有任何錯誤。
+- v2 角色包有 16 個看的方向,所以閒著時寵物會**轉頭看你的滑鼠**。
+- Codex 也能用:`npm run pets:install-codex` 會把她們複製到 `~/.codex/pets/`,再到 Codex 設定裡選。
+- 改了腳本想重畫:`npm run pets:draw`(需要 Python + Pillow)。
+- 這是同人二創,詳見 [ASSETS-LICENSE.md](ASSETS-LICENSE.md):角色版權屬於 NEXON Games / Yostar,sprite 僅限非商業使用。
 
 ## 快速開始
 
@@ -49,7 +61,7 @@ npm start         # 正式版
 
 選單 →「**外表**」可以換寵物的樣子,共三種:
 
-1. **內建配色**:小黃雞、雪白鴨、薄荷史萊姆、櫻花雞、夜貓。都是程式畫的像素圖,所有道具(書、鍵盤、榔頭…)都有。
+1. **內建外表**:光和望(見上方),加上程式畫的小雞五種配色:小黃雞、雪白鴨、薄荷史萊姆、櫻花雞、夜貓。小雞版附有手畫道具(書、鍵盤、榔頭…)。
 2. **自己的圖片**:在 `~/.acp-pet/skins/` 開一個資料夾(選單 → 外表 →「打開外表資料夾」),每個動作放一張圖。PNG、GIF(會動的也可以)、WebP、JPG 都行。只有 `idle` 是必要的,缺的動作會自動退回:
 
    ```
@@ -63,7 +75,7 @@ npm start         # 正式版
    ```
 
    圖片外表沒有手畫的道具,所以寵物會顯示一個徽章(📖 ⌨️ 🔨 🪧 …),再加上跳、抖、搖的動態,讓你看得出牠在做什麼。
-3. **Codex / OpenPet 角色包**:把角色包資料夾(`pet.json` + 8×9 格、每格 192×208 的 spritesheet)丟進 `~/.acp-pet/skins/` 就能直接用,做給 Codex 或 [OpenPet](https://github.com/dengyie/OpenPet) 的寵物都能拿來套。
+3. **Codex 角色包**:把角色包資料夾(`pet.json` + 每格 192×208 的 spritesheet;v1 是 8×9 格,v2 是 8×11 格)丟進 `~/.acp-pet/skins/` 就能直接用。[awesome-codex-pet](https://github.com/legeling/awesome-codex-pet) 或 [OpenPet](https://github.com/dengyie/OpenPet) 上幾百隻寵物都能拿來套,v2 的還會轉頭看你的滑鼠。
 
 每次打開選單都會重新掃描資料夾,新放的外表不用重開就會出現。超過 8 MB 的圖、指到外表資料夾外面的路徑一律拒絕。
 
@@ -74,7 +86,7 @@ npm start         # 正式版
 ```json
 {
   "pets": [
-    { "id": "pet1", "name": "小黃", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "chick" }
+    { "id": "pet1", "name": "光", "agent": "claude", "workspace": "C:\\Users\\you\\acp-pet-workspace", "skin": "hikari" }
   ],
   "permissionTimeoutSec": 60,
   "scale": 1,
@@ -112,7 +124,10 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 | `src/core/permission.ts` | 預設拒絕、有超時的權限關卡 |
 | `src/core/controller.ts` | 把一隻寵物串起來,也負責接力賽;不依賴 Electron |
 | `src/core/race.ts` | 比賽裁判 |
-| `src/core/skins.ts` | 載入外表:配色、圖片資料夾、Codex 角色包 |
+| `src/core/skins.ts` | 載入外表:配色、圖片資料夾、Codex 角色包(v1 和 v2) |
+| `src/core/look.ts` | v2 看游標:游標角度 → 16 張畫面中的一張 |
+| `pets/` | 內建角色包:光和望 |
+| `scripts/pets/draw_twins.py` | 用程式畫出光和望的 spritesheet |
 | `src/core/fake-source.ts` | `/demo`、`/fail` 的腳本 |
 | `src/main/` | Electron:每隻寵物一個透明、可點穿的視窗,托盤、選單、設定 |
 | `src/renderer/` | 零素材像素 sprite、外表繪製、對話氣泡、權限牌子、TTS |
@@ -120,8 +135,8 @@ acpx runtime ─ AcpRuntimeEvent ─▶ AcpEventNormalizer ─ PetEvent ─▶ P
 ## 測試
 
 ```bash
-npm test          # 98 個單元 + 整合測試
-npm run smoke     # 真的開 Electron:所有動作、三種外表、150% 大小、TTS、接力賽、兩隻比賽(17 項檢查,截圖存在 smoke-out/)
+npm test          # 112 個單元 + 整合測試
+npm run smoke     # 真的開 Electron:所有動作、所有外表、光和望加上看游標、150% 大小、TTS、接力賽、兩隻比賽(21 項檢查,截圖存在 smoke-out/)
 ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # 在暫存資料夾驅動真的 agent:一次任務 + 兩棒接力(會用到額度)
 ```
 
@@ -129,9 +144,10 @@ ACP_PET_LIVE=1 npx vitest run test/live.test.ts   # 在暫存資料夾驅動真�
 
 - [acpx](https://github.com/openclaw/acpx):ACP runtime
 - [qq-slime-pet](https://github.com/DTSFO/qq-slime-pet):零素材 canvas 像素 sprite、點穿判定的做法
+- [awesome-codex-pet](https://github.com/legeling/awesome-codex-pet):Codex pet v2 規格與 `validate_atlas.py`
 - [OpenPet](https://github.com/dengyie/OpenPet):Codex 角色包的格式
 - [codex-has-a-pet-too](https://github.com/ChenxiChu001/codex-has-a-pet-too)、[miku-on-desktop](https://github.com/thunguo/miku-on-desktop):啟發這個專案的其他 agent 桌寵
 
 ## 授權
 
-MIT
+程式碼:MIT。光和望的 sprite 是蔚藍檔案的同人二創,僅限非商業使用,詳見 [ASSETS-LICENSE.md](ASSETS-LICENSE.md)。
