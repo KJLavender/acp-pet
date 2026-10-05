@@ -77,6 +77,20 @@ export function planAmbient(pets: AmbientPet[], rng: Rng): AmbientAction | null 
     return { kind: "greet", pet: i, line: pick(GREETINGS, rng) };
   }
 
+  // Standing on top of each other looks like a glitch: someone steps aside.
+  for (const a of free) {
+    if (a.p.cursorOver) continue;
+    const crowded = pets.find(
+      (o, j) => j !== a.i && sameArea(o, a.p) && Math.abs(center(o) - center(a.p)) < chatDistance(a.p, o) * 0.55,
+    );
+    if (crowded) {
+      const away = center(a.p) <= center(crowded) ? -1 : 1;
+      let toX = clampX(a.p, crowded.x + away * a.p.width * 0.75);
+      if (Math.abs(toX - a.p.x) < 40) toX = clampX(a.p, crowded.x - away * a.p.width * 0.75); // pinned at the edge
+      if (Math.abs(toX - a.p.x) >= 40) return { kind: "wander", pet: a.i, toX };
+    }
+  }
+
   const roll = rng();
   if (free.length >= 2 && roll < 0.45) {
     const a = pick(free, rng);

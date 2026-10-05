@@ -47,6 +47,21 @@ describe("planAmbient", () => {
     expect(act.toX).toBeGreaterThan(1400 - 320);
   });
 
+  it("pets standing on top of each other: one steps aside", () => {
+    const act = planAmbient([pet({ x: 1000 }), pet({ name: "ノゾミ", x: 1040 })], seq(0.9));
+    expect(act).toMatchObject({ kind: "wander", pet: 0 });
+    if (act?.kind !== "wander") throw new Error("expected wander");
+    // moves left, away from the other one, by most of a window width
+    expect(act.toX).toBeLessThan(1000);
+    expect(1040 - act.toX).toBeGreaterThanOrEqual(200);
+  });
+
+  it("a crowded pet pinned at the screen edge steps the other way", () => {
+    const act = planAmbient([pet({ x: 0 }), pet({ name: "ノゾミ", x: 20 })], seq(0.9));
+    expect(act?.kind).toBe("wander");
+    expect(act?.kind === "wander" && act.toX).toBeGreaterThan(20);
+  });
+
   it("pets on different screens don't try to visit each other", () => {
     const act = planAmbient([pet({ x: 100 }), pet({ x: 2500, area: { x: 1920, width: 1920 } })], seq(0.1, 0, 0.9, 0.5, 0.5, 0.5));
     expect(act?.kind).not.toBe("visit");
