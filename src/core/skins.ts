@@ -16,7 +16,15 @@ export type AtlasRow = { row: number; durations: number[] };
 
 export type Skin =
   | { type: "pixel"; id: string; name: string; palette: Record<string, string> }
-  | { type: "images"; id: string; name: string; frames: Partial<Record<PetState, string>>; pixelated: boolean }
+  | {
+      type: "images";
+      id: string;
+      name: string;
+      frames: Partial<Record<PetState, string>>;
+      pixelated: boolean;
+      /** Poses that fell all the way back to idle.png: the renderer fakes them with motion, filters and a badge. */
+      generic: PetState[];
+    }
   | {
       type: "atlas";
       id: string;
@@ -164,9 +172,11 @@ export async function loadFolderSkin(dir: string, id: string): Promise<Skin> {
     return cache.get(name)!;
   };
   const frames: Partial<Record<PetState, string>> = {};
+  const generic: PetState[] = [];
   for (const pose of POSES) {
     const name = [pose, ...IMAGE_FALLBACK[pose]].find((n) => byName.has(n))!;
     frames[pose] = await load(name);
+    if (name === "idle" && pose !== "idle") generic.push(pose);
   }
   return {
     type: "images",
@@ -174,6 +184,7 @@ export async function loadFolderSkin(dir: string, id: string): Promise<Skin> {
     name: typeof meta.name === "string" ? meta.name : id,
     frames,
     pixelated: meta.pixelated === true,
+    generic,
   };
 }
 

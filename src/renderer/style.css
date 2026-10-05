@@ -10,7 +10,7 @@ html, body {
 #stage {
   position: relative;
   width: 320px;
-  height: 400px;
+  height: 460px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -41,16 +41,20 @@ html, body {
 #art.atlas.pixelated #pet { image-rendering: pixelated; }
 body.atlas #bubble { bottom: 226px; }
 body.atlas #sign { bottom: 222px; }
-#pet-img { max-width: 200px; max-height: 180px; object-fit: contain; pointer-events: none; }
+#art.images { width: 280px; height: 260px; }
+#pet-img { max-width: 280px; max-height: 260px; object-fit: contain; pointer-events: none; }
+body.images #bubble { bottom: 286px; }
+body.images #sign { bottom: 282px; }
 #pet-img.pixelated { image-rendering: pixelated; }
 
 /* Image skins don't have hand-drawn props, so poses get motion + a badge. */
 #art.pose-happy #pet-img, #art.pose-levelup #pet-img, #art.pose-tugging #pet-img { animation: hop 0.35s ease-in-out infinite alternate; }
 #art.pose-typing #pet-img, #art.pose-hammering #pet-img { animation: jitter 0.15s steps(2) infinite; }
 #art.pose-thinking #pet-img, #art.pose-reading #pet-img, #art.pose-peeking #pet-img { animation: sway 1.2s ease-in-out infinite alternate; }
-#art.pose-sick #pet-img { filter: grayscale(0.8) brightness(0.9); }
-#art.pose-sleeping #pet-img, #art.pose-sleeping.atlas #pet { filter: brightness(0.8); }
-#art.pose-sulking #pet-img { transform: scaleX(-1); filter: saturate(0.6); }
+/* Filters only fake a pose the skin has no picture for (it fell back to idle). */
+#art.generic.pose-sick #pet-img { filter: grayscale(0.8) brightness(0.9); }
+#art.generic.pose-sleeping #pet-img, #art.pose-sleeping.atlas #pet { filter: brightness(0.8); }
+#art.generic.pose-sulking #pet-img { transform: scaleX(-1); filter: saturate(0.6); }
 #badge {
   position: absolute;
   top: 6px;

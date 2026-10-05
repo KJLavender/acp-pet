@@ -12,7 +12,7 @@ import { loadSave, type SaveData } from "../core/store.js";
 import { petHome, saveFileFor, skinDirs, type PetConfig, type PetProfile } from "./config.js";
 
 export const WIN_W = 320;
-export const WIN_H = 400;
+export const WIN_H = 460;
 
 export type PetWindowOptions = {
   profile: PetProfile;

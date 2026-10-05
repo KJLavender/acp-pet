@@ -9,7 +9,7 @@ import type { PetEvent } from "../core/events.js";
 import { CODEX_ATLAS } from "../core/skins.js";
 import { skinsDir } from "./config.js";
 import { addPet, log, pets, startRace, updateSettings } from "./main.js";
-import type { PetWindow } from "./pet-window.js";
+import { WIN_H, WIN_W, type PetWindow } from "./pet-window.js";
 
 const outDir = join(process.cwd(), "smoke-out");
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -138,7 +138,13 @@ async function scenarioSkins(pet: PetWindow) {
   );
   await shot(pet, "skin-images-reading");
   check("skin: image folder loads", img.skin === "images:test-images" && img.w === 96 && !img.hidden, JSON.stringify(img));
-  check("skin: image skin shows a pose badge", img.badge === "📖", img.badge);
+  check("skin: a pose with its own picture (reading → working.png) needs no badge", img.badge === "", img.badge);
+  pet.controller.brain.askPermission({ id: "badge-sign", title: "x", deadline: Date.now() + 60_000 });
+  pet.controller.tick();
+  await sleep(300);
+  const generic = await evalIn<string>(pet, `document.getElementById("badge").textContent`);
+  check("skin: a pose with no picture (tugging → idle.png) gets a badge", generic === "🪧", generic);
+  pet.controller.brain.resolvePermission("badge-sign", "allow", Date.now());
   const working = await evalIn<boolean>(pet, `document.getElementById("pet-img").src.length > 100`);
   check("skin: missing pose falls back (reading → working.png)", working);
 
@@ -233,7 +239,7 @@ async function scenarioScale(pet: PetWindow) {
   const [w, h] = pet.win.getSize();
   const zoom = pet.win.webContents.getZoomFactor();
   await shot(pet, "scale-150");
-  check("scale: window and content grow to 150%", w === 480 && h === 600 && zoom === 1.5, `${w}×${h} zoom ${zoom}`);
+  check("scale: window and content grow to 150%", w === WIN_W * 1.5 && h === WIN_H * 1.5 && zoom === 1.5, `${w}×${h} zoom ${zoom}`);
   await updateSettings({ scale: 1 });
   await updateSettings({ alwaysOnTop: false });
   check("always-on-top can be turned off", !pet.win.isAlwaysOnTop());
