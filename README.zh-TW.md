@@ -4,7 +4,7 @@
 
 acp-pet 是一隻住在桌面上的小寵物,會即時演出 coding agent 正在做的事。agent 在讀檔案,寵物就翻書;agent 在改程式,寵物就打字;agent 要做有風險的事、需要你同意時,寵物會舉一塊寫著「准」和「不准」的牌子跑過來問你。
 
-它支援講 [ACP](https://agentclientprotocol.com)(Agent Client Protocol,程式與 coding agent 溝通的標準協定)的 agent,例如 Codex 或 Gemini CLI。寵物不聊天,也不靠讀 log 猜。它直接讀 agent 真實的 `session/update` 事件,事件一來就演出來。
+它支援講 [ACP](https://agentclientprotocol.com)(Agent Client Protocol,程式與 coding agent 溝通的標準協定)的 agent,例如 Claude Code（預設）、Codex 或 Gemini CLI。寵物不聊天,也不靠讀 log 猜。它直接讀 agent 真實的 `session/update` 事件,事件一來就演出來。
 
 <p align="center">
   <img src="docs/pets/hikari.gif" width="192" height="208" alt="ヒカリ Hikari">

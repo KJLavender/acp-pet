@@ -4,7 +4,7 @@
 
 acp-pet is a small pet that lives on your desktop and shows what a coding agent is doing right now. When the agent reads a file, the pet reads a book. When it edits code, the pet types. When it needs your approval for something risky, the pet holds up a sign with Allow and Deny buttons.
 
-It works with agents that speak [ACP](https://agentclientprotocol.com) (the Agent Client Protocol, a standard way for programs to talk to coding agents), such as Codex or Gemini CLI. The pet doesn't chat and doesn't guess from logs. It reads the agent's real `session/update` events and acts each one out as it arrives.
+It works with agents that speak [ACP](https://agentclientprotocol.com) (the Agent Client Protocol, a standard way for programs to talk to coding agents), such as Claude Code (the default), Codex or Gemini CLI. The pet doesn't chat and doesn't guess from logs. It reads the agent's real `session/update` events and acts each one out as it arrives.
 
 <p align="center">
   <img src="docs/pets/hikari.gif" width="192" height="208" alt="Hikari">
