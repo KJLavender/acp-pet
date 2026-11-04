@@ -4,3 +4,11 @@ smoke-out/
 *.log
 __pycache__/
 docs/art-skin-preview.png
+
+# planning notes stay local
+PLAN.md
+PLANS.md
+plan.md
+*-plan.md
+*_plan.md
+plans/
